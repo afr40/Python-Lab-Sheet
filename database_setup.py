@@ -41,6 +41,8 @@ query = '''CREATE TABLE IF NOT EXISTS Pilot (
 )'''
 cursor.execute(query)
 
+cursor.execute('''PRAGMA foreign_keys = ON''')
+
 cursor.execute('''INSERT INTO Flight VALUES ('AV01', 'London', 'Edinburgh', '001', '', '10:30', '2025-03-12')''')
 cursor.execute('''INSERT INTO Destination VALUES ('London-HR', 'London', 'UK', 'HR')''')
 cursor.execute('''INSERT INTO Pilot VALUES ('001', 'AV01', 'Josh', '')''')
