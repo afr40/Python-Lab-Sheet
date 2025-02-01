@@ -117,6 +117,8 @@ class DBOperations:
     try:
       self.get_connection()
 
+      self.cur.execute(self.sql_update_data)
+      result = self.cur.fetchall()
       # Update statement
 
       if result.rowcount != 0:
@@ -135,6 +137,9 @@ class DBOperations:
   def delete_data(self):
     try:
       self.get_connection()
+
+      self.cur.execute(self.sql_delete_data)
+      result = self.cur.fetchall()
 
       if result.rowcount != 0:
         print(str(result.rowcount) + "Row(s) affected.")
@@ -216,29 +221,32 @@ class FlightInfo:
 while True:
   print("\n Menu:")
   print("**********")
-  print(" 1. Create table FlightInfo")
-  print(" 2. Insert data into FlightInfo")
-  print(" 3. Select all data from FlightInfo")
-  print(" 4. Search a flight")
-  print(" 5. Update data some records")
-  print(" 6. Delete data some records")
-  print(" 7. Exit\n")
+  print(" 1. Show all Flights Records")
+  print(" 2. Add Flight Record")
+  print(" 3. Update Flight Information")
+  print(" 4. Assign Pilot to a Flight")
+  print(" 5. View Pilot Schedule")
+  print(" 6. View Destination Information")
+  print(" 7. Update Destination Information")
+  print(" 8. Exit\n")
 
   __choose_menu = int(input("Enter your choice: "))
   db_ops = DBOperations()
   if __choose_menu == 1:
-    db_ops.create_table()
+    db_ops.select_all()
   elif __choose_menu == 2:
     db_ops.insert_data()
   elif __choose_menu == 3:
-    db_ops.select_all()
+    db_ops.update_data()
   elif __choose_menu == 4:
     db_ops.search_data()
   elif __choose_menu == 5:
-    db_ops.update_data()
+    db_ops.select_all()
   elif __choose_menu == 6:
     db_ops.delete_data()
   elif __choose_menu == 7:
+    db_ops.select_all()
+  elif __choose_menu == 8:
     exit(0)
   else:
     print("Invalid Choice")
