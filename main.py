@@ -11,7 +11,7 @@ class DBOperations:
   sql_create_table = "create table TableName"
 
   sql_insert = ""
-  sql_select_all = "select * from Flight"
+  sql_select_all = "select * from FlightInfo"
   sql_search = "select * from TableName where FlightID = ?"
   sql_alter_data = ""
   sql_update_data = ""
