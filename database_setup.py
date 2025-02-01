@@ -23,10 +23,10 @@ class DatabaseSetup:
             PilotID INTEGER,
             Status TEXT,
             Schedule_time TIME NOT NULL,
-            Schedule_date DATE NOT NULL,
+            Departure_date DATE NOT NULL,
             CHECK (Origin <> Destination), 
             CHECK (Schedule_time IS strftime('%H:%M', Schedule_time)),
-            CHECK (Schedule_date IS strftime('%Y-%m-%d', Schedule_date))
+            CHECK (Departure_date IS strftime('%Y-%m-%d', Departure_date))
         )'''
         self.cursor.execute(query)
 
@@ -63,3 +63,5 @@ class DatabaseSetup:
         self.cursor.execute(query)
         sample_data = self.cursor.fetchall()
         print(sample_data)
+
+DatabaseSetup().print_tables()
