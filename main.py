@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 # Define DBOperation class to manage all data into the database.
 # Give a name of your choice to the database
@@ -10,7 +11,7 @@ class DBOperations:
   sql_create_table = "create table TableName"
 
   sql_insert = ""
-  sql_select_all = "select * from TableName"
+  sql_select_all = "select * from Flight"
   sql_search = "select * from TableName where FlightID = ?"
   sql_alter_data = ""
   sql_update_data = ""
@@ -19,17 +20,17 @@ class DBOperations:
 
   def __init__(self):
     try:
-      self.conn = sqlite3.connect("DBName.db")
+      self.conn = sqlite3.connect("test.db")
       self.cur = self.conn.cursor()
-      self.cur.execute(self.sql_create_table_firsttime)
-      self.conn.commit()
+      # self.cur.execute(self.sql_create_table_firsttime)
+      # self.conn.commit()
     except Exception as e:
       print(e)
     finally:
       self.conn.close()
 
   def get_connection(self):
-    self.conn = sqlite3.connect("DBName.db")
+    self.conn = sqlite3.connect("test.db")
     self.cur = self.conn.cursor()
 
   def create_table(self):
@@ -65,7 +66,10 @@ class DBOperations:
       self.cur.execute(self.sql_select_all)
       result = self.cur.fetchall()
 
-      # think how you could develop this method to show the records
+      df = pd.DataFrame(result, columns=['Flight ID', 'Origin', 'Destination', 'Pilot ID', 'Status', 'Schedule Time', 'Departure Date'])
+      pd.set_option('display.max_columns', None)
+      pd.set_option('display.width', 300)
+      print(df)
 
     except Exception as e:
       print(e)
