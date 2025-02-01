@@ -16,8 +16,11 @@ query = '''CREATE TABLE IF NOT EXISTS Flight (
     Destination TEXT,
     PilotID INTEGER,
     Status TEXT,
-    Schedule_time TEXT NOT NULL,
-    Schedule_date TEXT NOT NULL
+    Schedule_time TIME NOT NULL,
+    Schedule_date DATE NOT NULL,
+    CHECK (Origin <> Destination), 
+    CHECK (Schedule_time IS strftime('%H:%M', Schedule_time)),
+    CHECK (Schedule_date IS strftime('%Y-%m-%d', Schedule_date))
 )'''
 cursor.execute(query)
 
