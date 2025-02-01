@@ -12,7 +12,7 @@ class DBOperations:
 
   sql_insert = ""
   sql_select_all = "select * from FlightInfo"
-  sql_search = "select * from TableName where FlightID = ?"
+  sql_search = "select * from FlightInfo where FlightID = ?"
   sql_alter_data = ""
   sql_update_data = ""
   sql_delete_data = ""
@@ -79,8 +79,8 @@ class DBOperations:
   def search_data(self):
     try:
       self.get_connection()
-      flightID = int(input("Enter FlightNo: "))
-      self.cur.execute(self.sql_search, tuple(str(flightID)))
+      flight_id = int(input("Enter FlightNo: "))
+      self.cur.execute(self.sql_search, tuple(str(flight_id)))
       result = self.cur.fetchone()
       if type(result) == type(tuple()):
         for index, detail in enumerate(result):
@@ -137,39 +137,39 @@ class DBOperations:
 class FlightInfo:
 
   def __init__(self):
-    self.flightID = 0
-    self.flightOrigin = ''
-    self.flightDestination = ''
+    self.flight_id = 0
+    self.flight_origin = ''
+    self.flight_destination = ''
     self.status = ''
 
-  def set_flight_id(self, flightID):
-    self.flightID = flightID
+  def set_flight_id(self, flight_id):
+    self.flight_id = flight_id
 
-  def set_flight_origin(self, flightOrigin):
-    self.flight_origin = flightOrigin
+  def set_flight_origin(self, flight_origin):
+    self.flight_origin = flight_origin
 
-  def set_flight_destination(self, flightDestination):
-    self.flight_destination = flightDestination
+  def set_flight_destination(self, flight_destination):
+    self.flight_destination = flight_destination
 
   def set_status(self, status):
     self.status = status
 
   def get_flight_id(self):
-    return self.flightID
+    return self.flight_id
 
   def get_flight_origin(self):
-    return self.flightOrigin
+    return self.flight_origin
 
   def get_flight_destination(self):
-    return self.flightDestination
+    return self.flight_destination
 
   def get_status(self):
     return self.status
 
   def __str__(self):
     return str(
-      self.flightID
-    ) + "\n" + self.flightOrigin + "\n" + self.flightDestination + "\n" + str(
+      self.flight_id
+    ) + "\n" + self.flight_origin + "\n" + self.flight_destination + "\n" + str(
       self.status)
 
 
