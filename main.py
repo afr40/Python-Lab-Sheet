@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+from database_setup import DatabaseSetup
 
 # Define DBOperation class to manage all data into the database.
 # Give a name of your choice to the database
@@ -20,10 +21,14 @@ class DBOperations:
 
   def __init__(self):
     try:
+      self.database_setup = DatabaseSetup()
+      self.database_setup.drop_tables()
+      self.database_setup.create_tables()
+      self.database_setup.insert_sample_data()
+      self.database_setup.commit_database()
+
       self.conn = sqlite3.connect("test.db")
       self.cur = self.conn.cursor()
-      # self.cur.execute(self.sql_create_table_firsttime)
-      # self.conn.commit()
     except Exception as e:
       print(e)
     finally:
