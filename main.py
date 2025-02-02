@@ -1,9 +1,9 @@
 import sqlite3
 import pandas as pd
 from database_setup import DatabaseSetup
+from table_utils.flight_info import FlightInfo
 
 # Define DBOperation class to manage all data into the database.
-# Give a name of your choice to the database
 
 
 class DBOperations:
@@ -15,7 +15,7 @@ class DBOperations:
   sql_select_all = "SELECT * FROM FlightInfo"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
   # sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
-  sql_update_data = "UPDATE FlightInfo SET FlightID = ? WHERE FlightID = ?"
+  # sql_update_data = f"UPDATE FlightInfo SET {__update_choice} = ? WHERE FlightID = ?"
   sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
   # sql_drop_table = ""
 
@@ -52,10 +52,7 @@ class DBOperations:
   def insert_data(self):
     try:
       self.get_connection()
-
       flight = FlightInfo()
-      # self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
-      # columns = [description[0] for description in self.cur.description]
 
       flight.set_flight_id(int(input("Enter FlightID: ")))
       flight.set_flight_origin(str(input("Enter Flight Origin: ")))
@@ -65,10 +62,7 @@ class DBOperations:
       flight.set_schedule_time(str(input("Enter Flight Schedule Time: ")))
       flight.set_departure_date(str(input("Enter Departure Date: ")))
 
-      # print(flight)
-      print(tuple(str(flight).split("\n")))
       self.cur.execute(self.sql_insert, tuple(str(flight).split("\n")))
-      # print(self.sql_insert)
       self.conn.commit()
       print("Inserted data successfully")
     except Exception as e:
@@ -131,13 +125,25 @@ class DBOperations:
   def update_data(self):
     try:
       self.get_connection()
+      self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
+      columns = [description[0] for description in self.cur.description]
 
-      self.cur.execute(self.sql_update_data)
-      result = self.cur.fetchall()
-      # Update statement
+      flight_id = int(input("Enter Flight ID: "))
+      print("Choose Information to Update")
+      print("---------------")
+      print("Flight ID: " + str(flight_id))
+      for index, column in enumerate(columns, start=1):
+        print(f"{index}. Update {column}")
 
-      if result.rowcount != 0:
-        print(str(result.rowcount) + "Row(s) affected.")
+      print("\n")
+      update_choice = int(input("Enter Update Index: "))
+      update_information = str(input("Enter Update: "))
+      sql_update_data = f"UPDATE FlightInfo SET {columns[update_choice - 1]} = ? WHERE FlightID = ?"
+      self.cur.execute(sql_update_data, (update_information, flight_id))
+
+      if self.cur.rowcount != 0:
+        print(str(self.cur.rowcount) + "Row(s) affected.")
+        self.conn.commit()
       else:
         print("Cannot find this record in the database")
 
@@ -147,8 +153,8 @@ class DBOperations:
       self.conn.close()
 
 
-# Define Delete_data method to delete data from the table. The user will need to input the flight id to delete the corrosponding record.
-
+  # Define Delete_data method to delete data from the table.
+  # The user will need to input the flight id to delete the corresponding record.
   def delete_data(self):
     try:
       self.get_connection()
@@ -157,80 +163,17 @@ class DBOperations:
       self.cur.execute(self.sql_delete_data, (flight_id,))
       # result = self.cur.fetchall()
 
-
       if self.cur.rowcount != 0:
         print(str(self.cur.rowcount) + "Row(s) affected.")
         self.conn.commit()
       else:
         print("Cannot find this record in the database")
 
-
     except Exception as e:
       print(e)
     finally:
       self.conn.close()
 
-
-class FlightInfo:
-
-  def __init__(self):
-    self.flight_id = 0
-    self.flight_origin = ''
-    self.flight_destination = ''
-    self.pilot_id = 0
-    self.status = ''
-    self.schedule_time = ''
-    self.departure_date = ''
-
-  # Set methods
-  def set_flight_id(self, flight_id):
-    self.flight_id = flight_id
-
-  def set_flight_origin(self, flight_origin):
-    self.flight_origin = flight_origin
-
-  def set_flight_destination(self, flight_destination):
-    self.flight_destination = flight_destination
-
-  def set_pilot_id(self, pilot_id):
-    self.pilot_id = pilot_id
-
-  def set_status(self, status):
-    self.status = status
-
-  def set_schedule_time(self, schedule_time):
-    self.schedule_time = schedule_time
-
-  def set_departure_date(self, departure_date):
-    self.departure_date = departure_date
-
-  # Get methods
-  def get_flight_id(self):
-    return self.flight_id
-
-  def get_flight_origin(self):
-    return self.flight_origin
-
-  def get_flight_destination(self):
-    return self.flight_destination
-
-  def get_status(self):
-    return self.status
-
-  def get_pilot_id(self):
-    return self.pilot_id
-
-  def get_schedule_time(self):
-    return self.schedule_time
-
-  def get_departure_date(self):
-    return self.departure_date
-
-  def __str__(self):
-    return str(
-      self.flight_id
-    ) + "\n" + self.flight_origin + "\n" + self.flight_destination + "\n" + str(self.pilot_id) + "\n" + str(
-      self.status) + "\n" + str(self.schedule_time) + "\n" + str(self.departure_date)
 
 
 # The main function will parse arguments.
@@ -256,14 +199,6 @@ while True:
   if __choose_menu == 1:
     db_ops.select_all()
   elif __choose_menu == 2:
-    # print("1. Search by Flight ID")
-    # print("2. Search by Flight Origin")
-    # print("3. Search by Flight Destination")
-    # print("4. Search by Pilot ID")
-    # print("5. Search by Status")
-    # print("6. Search by Schedule Time")
-    # print("7. Search by Departure Date")
-    # __choose_search = int(input("Enter your choice: "))
     db_ops.search_data()
   elif __choose_menu == 3:
     db_ops.insert_data()
