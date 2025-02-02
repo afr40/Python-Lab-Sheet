@@ -1,4 +1,3 @@
-import sqlite3
 import sqlite3 as sql
 
 
@@ -15,10 +14,11 @@ class DatabaseSetup:
         self.cursor.execute(query)
         query = "DROP TABLE IF EXISTS Pilot"
         self.cursor.execute(query)
+        self.commit_database()
 
     def create_tables(self):
         query = '''CREATE TABLE IF NOT EXISTS FlightInfo (
-            FlightID TEXT PRIMARY KEY,
+            FlightID INTEGER PRIMARY KEY AUTOINCREMENT,
             Origin TEXT NOT NULL,
             Destination TEXT,
             PilotID INTEGER,
@@ -32,33 +32,36 @@ class DatabaseSetup:
         self.cursor.execute(query)
 
         query = '''CREATE TABLE IF NOT EXISTS Destination (
-            DestinationID Text PRIMARY KEY,
-            City Text NOT NULL,
-            Country Text NOT NULL,
-            AirportID Text NOT NULL
+            DestinationID TEXT PRIMARY KEY,
+            City TEXT NOT NULL,
+            Country TEXT NOT NULL,
+            AirportID TEXT NOT NULL
         )'''
         self.cursor.execute(query)
 
         query = '''CREATE TABLE IF NOT EXISTS Pilot (
-            PilotID TEXT PRIMARY KEY,
-            FlightID TEXT,
+            PilotID TEXT PRIMARY KEY NOT NULL,
+            FlightID INTEGER,
             Name TEXT NOT NULL,
             Status TEXT,
             FOREIGN KEY (FlightID) REFERENCES FlightInfo (FlightID)
         )'''
         self.cursor.execute(query)
-
         self.cursor.execute('''PRAGMA foreign_keys = ON''')
+
+        self.commit_database()
 
     def insert_sample_data(self):
         self.cursor.execute(
-            '''INSERT INTO FlightInfo VALUES ('AV01', 'London', 'Edinburgh', '001', '', '10:30', '2025-03-12')''')
+            '''INSERT INTO FlightInfo VALUES (10, 'London', 'Edinburgh', 1, '', '10:30', '2025-03-12')''')
+        self.cursor.execute('''INSERT INTO Pilot VALUES (1, 10, 'Josh', '')''')
         self.cursor.execute('''INSERT INTO Destination VALUES ('London-HR', 'London', 'UK', 'HR')''')
-        self.cursor.execute('''INSERT INTO Pilot VALUES ('001', 'AV01', 'Josh', '')''')
+
+        self.commit_database()
 
     def commit_database(self):
         self.db.commit()
-        self.db.close()
+        # self.db.close()
 
     def print_tables(self):
         query = "SELECT * FROM ((FlightInfo NATURAL JOIN DESTINATION) NATURAL JOIN Pilot)"
@@ -66,4 +69,8 @@ class DatabaseSetup:
         sample_data = self.cursor.fetchall()
         print(sample_data)
 
-DatabaseSetup().print_tables()
+# DatabaseSetup().drop_tables()
+# DatabaseSetup().create_tables()
+# DatabaseSetup().insert_sample_data()
+# # DatabaseSetup().commit_database()
+# DatabaseSetup().print_tables()
