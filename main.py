@@ -1,53 +1,62 @@
 import sqlite3
 import pandas as pd
-from database_setup import DatabaseSetup
+from database_setup import drop_tables, create_tables, insert_sample_data
 from table_utils.flight_info import FlightInfo
+
 
 # Define DBOperation class to manage all data into the database.
 
 
 class DBOperations:
-  # sql_create_table_firsttime = "create table if not exists "
-
-  # sql_create_table = "create table TableName"
-
-  sql_insert = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
+  sql_insert_flight = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
   sql_select_all = "SELECT * FROM FlightInfo"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
   # sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
-  # sql_update_data = f"UPDATE FlightInfo SET {__update_choice} = ? WHERE FlightID = ?"
   sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
-  # sql_drop_table = ""
 
   def __init__(self):
     try:
-      self.database_setup = DatabaseSetup()
-      # self.database_setup.drop_tables()
-      # self.database_setup.create_tables()
-      # self.database_setup.insert_sample_data()
-      # self.database_setup.commit_database()
-
       self.conn = sqlite3.connect("test.db")
       self.cur = self.conn.cursor()
+      create_tables(self.cur)
+      self.conn.commit()
     except Exception as e:
       print(e)
     finally:
       self.conn.close()
 
+
   def get_connection(self):
     self.conn = sqlite3.connect("test.db")
     self.cur = self.conn.cursor()
 
-  # def create_table(self):
-  #   try:
-  #     self.get_connection()
-  #     self.cur.execute(self.sql_create_table)
-  #     self.conn.commit()
-  #     print("Table created successfully")
-  #   except Exception as e:
-  #     print(e)
-  #   finally:
-  #     self.conn.close()
+
+  def create_table(self):
+    try:
+      self.get_connection()
+      drop_tables(self.cur)
+      create_tables(self.cur)
+      insert_sample_data(self.cur)
+      self.conn.commit()
+      print("Tables FlightInfor, Destination and Pilot created successfully")
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
+
+  def clear_database(self):
+    try:
+      self.get_connection()
+      drop_tables(self.cur)
+      create_tables(self.cur)
+      self.conn.commit()
+      print("Database Cleared")
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
 
   def insert_data(self):
     try:
@@ -62,7 +71,7 @@ class DBOperations:
       flight.set_schedule_time(str(input("Enter Flight Schedule Time: ")))
       flight.set_departure_date(str(input("Enter Departure Date: ")))
 
-      self.cur.execute(self.sql_insert, tuple(str(flight).split("\n")))
+      self.cur.execute(self.sql_insert_flight, tuple(str(flight).split("\n")))
       self.conn.commit()
       print("Inserted data successfully")
     except Exception as e:
@@ -175,7 +184,6 @@ class DBOperations:
       self.conn.close()
 
 
-
 # The main function will parse arguments.
 # These argument will be definded by the users on the console.
 # The user will select a choice from the menu to interact with the database.
@@ -192,7 +200,8 @@ while True:
   print(" 7. View Pilot Schedule")
   print(" 8. View Destination Information")
   print(" 9. Update Destination Information")
-  print(" 10. Exit\n")
+  print(" 10. Database Admin")
+  print(" 11. Exit\n")
 
   __choose_menu = int(input("Enter your choice: "))
   db_ops = DBOperations()
@@ -215,6 +224,14 @@ while True:
   elif __choose_menu == 9:
     db_ops.select_all()
   elif __choose_menu == 10:
+    print("1. Reset Database")
+    print("2. Clear Database Records")
+    __chose_menu = int(input("Enter your choice: "))
+    if __choose_menu == 1:
+      db_ops.create_table()
+    elif __choose_menu == 2:
+      db_ops.clear_database()
+  elif __choose_menu == 11:
     exit(0)
   else:
     print("Invalid Choice")
