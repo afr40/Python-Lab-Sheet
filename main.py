@@ -14,17 +14,17 @@ class DBOperations:
   sql_insert = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
   sql_select_all = "SELECT * FROM FlightInfo"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
-  sql_alter_data = ""
-  sql_update_data = ""
-  sql_delete_data = ""
+  sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
+  sql_update_data = "UPDATE FlightInfo SET FlightID = ? WHERE FlightID = ?"
+  sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
   # sql_drop_table = ""
 
   def __init__(self):
     try:
       self.database_setup = DatabaseSetup()
-      # self.database_setup.drop_tables()
+      self.database_setup.drop_tables()
       self.database_setup.create_tables()
-      # self.database_setup.insert_sample_data()
+      self.database_setup.insert_sample_data()
       self.database_setup.commit_database()
 
       self.conn = sqlite3.connect("test.db")
@@ -137,9 +137,12 @@ class DBOperations:
   def delete_data(self):
     try:
       self.get_connection()
+      flight_id = str(input("Enter Flight ID Record to Delete: "))
 
-      self.cur.execute(self.sql_delete_data)
+      self.cur.execute(self.sql_delete_data, (flight_id,))
       result = self.cur.fetchall()
+
+      self.conn.commit()
 
       if result.rowcount != 0:
         print(str(result.rowcount) + "Row(s) affected.")
@@ -224,11 +227,12 @@ while True:
   print(" 1. Show all Flights Records")
   print(" 2. Add Flight Record")
   print(" 3. Update Flight Information")
-  print(" 4. Assign Pilot to a Flight")
-  print(" 5. View Pilot Schedule")
-  print(" 6. View Destination Information")
-  print(" 7. Update Destination Information")
-  print(" 8. Exit\n")
+  print(" 4. Delete Flight Record")
+  print(" 5. Assign Pilot to a Flight")
+  print(" 6. View Pilot Schedule")
+  print(" 7. View Destination Information")
+  print(" 8. Update Destination Information")
+  print(" 9. Exit\n")
 
   __choose_menu = int(input("Enter your choice: "))
   db_ops = DBOperations()
@@ -239,14 +243,16 @@ while True:
   elif __choose_menu == 3:
     db_ops.update_data()
   elif __choose_menu == 4:
-    db_ops.search_data()
-  elif __choose_menu == 5:
-    db_ops.select_all()
-  elif __choose_menu == 6:
     db_ops.delete_data()
-  elif __choose_menu == 7:
+  elif __choose_menu == 5:
+    db_ops.search_data()
+  elif __choose_menu == 6:
     db_ops.select_all()
+  elif __choose_menu == 7:
+    db_ops.delete_data()
   elif __choose_menu == 8:
+    db_ops.select_all()
+  elif __choose_menu == 9:
     exit(0)
   else:
     print("Invalid Choice")
