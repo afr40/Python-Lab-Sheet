@@ -14,7 +14,7 @@ class DBOperations:
   sql_insert = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
   sql_select_all = "SELECT * FROM FlightInfo"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
-  sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
+  # sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
   sql_update_data = "UPDATE FlightInfo SET FlightID = ? WHERE FlightID = ?"
   sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
   # sql_drop_table = ""
@@ -54,7 +54,10 @@ class DBOperations:
       self.get_connection()
 
       flight = FlightInfo()
-      flight.set_flight_id(str(input("Enter FlightID: ")))
+      # self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
+      # columns = [description[0] for description in self.cur.description]
+
+      flight.set_flight_id(int(input("Enter FlightID: ")))
       flight.set_flight_origin(str(input("Enter Flight Origin: ")))
       flight.set_flight_destination(str(input("Enter Flight Destination: ")))
       flight.set_pilot_id(int(input("Enter Pilot ID: ")))
@@ -79,14 +82,15 @@ class DBOperations:
       self.cur.execute(self.sql_select_all)
       result = self.cur.fetchall()
 
+      # Find columns from FlightInfo table
       self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
       columns = [description[0] for description in self.cur.description]
 
+      # Print the FlightInfo in table format
       df = pd.DataFrame(result, columns=columns)
       pd.set_option('display.max_columns', None)
       pd.set_option('display.width', 300)
       print(df)
-
     except Exception as e:
       print(e)
     finally:
@@ -96,7 +100,7 @@ class DBOperations:
     try:
       self.get_connection()
       flight_id = int(input("Enter FlightNo: "))
-      self.cur.execute(self.sql_search, tuple(str(flight_id)))
+      self.cur.execute(self.sql_search, (str(flight_id),))
       result = self.cur.fetchone()
       if type(result) == type(tuple()):
         for index, detail in enumerate(result):
@@ -106,8 +110,14 @@ class DBOperations:
             print("Flight Origin: " + detail)
           elif index == 2:
             print("Flight Destination: " + detail)
-          else:
-            print("Status: " + str(detail))
+          elif index == 3:
+            print("Pilot ID" + str(detail))
+          elif index == 4:
+            print("Status: " + detail)
+          elif index == 5:
+            print("Schedule Time: " + detail)
+          else :
+            print("Departure Date: " + detail)
       else:
         print("No Record")
 
@@ -143,14 +153,15 @@ class DBOperations:
       flight_id = str(input("Enter Flight ID Record to Delete: "))
 
       self.cur.execute(self.sql_delete_data, (flight_id,))
-      result = self.cur.fetchall()
+      # result = self.cur.fetchall()
 
-      self.conn.commit()
 
-      if result.rowcount != 0:
-        print(str(result.rowcount) + "Row(s) affected.")
+      if self.cur.rowcount != 0:
+        print(str(self.cur.rowcount) + "Row(s) affected.")
       else:
         print("Cannot find this record in the database")
+
+        self.conn.commit()
 
     except Exception as e:
       print(e)
@@ -228,34 +239,45 @@ while True:
   print("\n Menu:")
   print("**********")
   print(" 1. Show all Flights Records")
-  print(" 2. Add Flight Record")
-  print(" 3. Update Flight Information")
-  print(" 4. Delete Flight Record")
-  print(" 5. Assign Pilot to a Flight")
-  print(" 6. View Pilot Schedule")
-  print(" 7. View Destination Information")
-  print(" 8. Update Destination Information")
-  print(" 9. Exit\n")
+  print(" 2. Search Flights Records")
+  print(" 3. Add Flight Record")
+  print(" 4. Update Flight Information")
+  print(" 5. Delete Flight Record")
+  print(" 6. Assign Pilot to a Flight")
+  print(" 7. View Pilot Schedule")
+  print(" 8. View Destination Information")
+  print(" 9. Update Destination Information")
+  print(" 10. Exit\n")
 
   __choose_menu = int(input("Enter your choice: "))
   db_ops = DBOperations()
   if __choose_menu == 1:
     db_ops.select_all()
   elif __choose_menu == 2:
-    db_ops.insert_data()
-  elif __choose_menu == 3:
-    db_ops.update_data()
-  elif __choose_menu == 4:
-    db_ops.delete_data()
-  elif __choose_menu == 5:
+    # print("1. Search by Flight ID")
+    # print("2. Search by Flight Origin")
+    # print("3. Search by Flight Destination")
+    # print("4. Search by Pilot ID")
+    # print("5. Search by Status")
+    # print("6. Search by Schedule Time")
+    # print("7. Search by Departure Date")
+    # __choose_search = int(input("Enter your choice: "))
     db_ops.search_data()
-  elif __choose_menu == 6:
-    db_ops.select_all()
-  elif __choose_menu == 7:
+  elif __choose_menu == 3:
+    db_ops.insert_data()
+  elif __choose_menu == 4:
+    db_ops.update_data()
+  elif __choose_menu == 5:
     db_ops.delete_data()
-  elif __choose_menu == 8:
+  elif __choose_menu == 6:
+    db_ops.search_data()
+  elif __choose_menu == 7:
     db_ops.select_all()
+  elif __choose_menu == 8:
+    db_ops.delete_data()
   elif __choose_menu == 9:
+    db_ops.select_all()
+  elif __choose_menu == 10:
     exit(0)
   else:
     print("Invalid Choice")
