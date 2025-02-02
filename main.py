@@ -22,10 +22,10 @@ class DBOperations:
   def __init__(self):
     try:
       self.database_setup = DatabaseSetup()
-      self.database_setup.drop_tables()
-      self.database_setup.create_tables()
-      self.database_setup.insert_sample_data()
-      self.database_setup.commit_database()
+      # self.database_setup.drop_tables()
+      # self.database_setup.create_tables()
+      # self.database_setup.insert_sample_data()
+      # self.database_setup.commit_database()
 
       self.conn = sqlite3.connect("test.db")
       self.cur = self.conn.cursor()
@@ -105,19 +105,21 @@ class DBOperations:
       if type(result) == type(tuple()):
         for index, detail in enumerate(result):
           if index == 0:
+            print("---------------")
             print("Flight ID: " + str(detail))
           elif index == 1:
             print("Flight Origin: " + detail)
           elif index == 2:
             print("Flight Destination: " + detail)
           elif index == 3:
-            print("Pilot ID" + str(detail))
+            print("Pilot ID: " + str(detail))
           elif index == 4:
             print("Status: " + detail)
           elif index == 5:
             print("Schedule Time: " + detail)
           else :
             print("Departure Date: " + detail)
+            print("---------------")
       else:
         print("No Record")
 
@@ -158,10 +160,10 @@ class DBOperations:
 
       if self.cur.rowcount != 0:
         print(str(self.cur.rowcount) + "Row(s) affected.")
+        self.conn.commit()
       else:
         print("Cannot find this record in the database")
 
-        self.conn.commit()
 
     except Exception as e:
       print(e)
