@@ -2,6 +2,8 @@ import sqlite3
 import pandas as pd
 from database_setup import drop_tables, create_tables, insert_sample_data
 from table_utils.flight_info import FlightInfo
+from table_utils.destination import Destination
+from table_utils.pilot import Pilot
 
 
 # Define DBOperation class to manage all data into the database.
@@ -10,9 +12,12 @@ from table_utils.flight_info import FlightInfo
 class DBOperations:
   sql_insert_flight = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
   sql_select_all = "SELECT * FROM FlightInfo"
+  sql_select_all_pilots = "SELECT * FROM Pilot"
+  sql_select_pilot_list = "SELECT PilotID, Name FROM Pilot"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
   # sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
   sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
+  sql_view_pilot_schedule = "SELECT Name, Schedule FROM Pilot WHERE PilotID = ?"
 
   def __init__(self):
     try:
@@ -183,6 +188,69 @@ class DBOperations:
     finally:
       self.conn.close()
 
+  def view_pilot_schedule(self):
+      try:
+        self.get_connection()
+        print("View Pilot Schedule. List of Pilots: ")
+        self.cur.execute(self.sql_select_pilot_list)
+        result = self.cur.fetchall()
+        self.print_table(result, 'Pilot', ['Pilot ID', 'Name'])
+        print("\n")
+        pilot_id = int(input("Enter Pilot ID: "))
+        self.cur.execute(self.sql_view_pilot_schedule, str(pilot_id,))
+        result = self.cur.fetchall()
+
+        if result:
+          self.print_table(result, 'Pilot', ['Name', 'Schedule'])
+        else:
+          print("Cannot Find Pilot in the Database")
+
+      except Exception as e:
+        print(e)
+      finally:
+        self.conn.close()
+
+
+  def select_all_pilots(self):
+    try:
+      self.get_connection()
+      self.cur.execute(self.sql_select_all_pilots)
+      result = self.cur.fetchall()
+      self.print_table(result, 'Pilot')
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
+
+  def print_table(self, result, table, columns=None):
+    try:
+      pd.set_option('display.max_columns', None)
+      pd.set_option('display.width', 300)
+      if columns is not None:
+        print(pd.DataFrame(result, columns=columns))
+      elif columns is None:
+        print(pd.DataFrame(result, columns=self.find_columns(table)))
+      else:
+        print("Cannot Find Results in the Database")
+    except Exception as e:
+      print(e)
+
+
+  def find_columns(self, table):
+    try:
+      self.get_connection()
+      self.cur.execute(f"SELECT * FROM {table} LIMIT 0")
+      columns = [description[0] for description in self.cur.description]
+      if columns:
+        return columns
+      else:
+        print(f"Cannot Find the Table '{table}' in the Database")
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
 
 # The main function will parse arguments.
 # These argument will be definded by the users on the console.
@@ -196,12 +264,10 @@ while True:
   print(" 3. Add Flight Record")
   print(" 4. Update Flight Information")
   print(" 5. Delete Flight Record")
-  print(" 6. Assign Pilot to a Flight")
   print(" 7. View Pilot Schedule")
   print(" 8. View Destination Information")
-  print(" 9. Update Destination Information")
-  print(" 10. Database Admin")
-  print(" 11. Exit\n")
+  print(" 9. Database Admin")
+  print(" 10. Exit\n")
 
   __choose_menu = int(input("Enter your choice: "))
   db_ops = DBOperations()
@@ -218,20 +284,18 @@ while True:
   elif __choose_menu == 6:
     db_ops.search_data()
   elif __choose_menu == 7:
-    db_ops.select_all()
+    db_ops.view_pilot_schedule()
   elif __choose_menu == 8:
     db_ops.delete_data()
   elif __choose_menu == 9:
-    db_ops.select_all()
-  elif __choose_menu == 10:
-    print("1. Reset Database")
+    print("1. Reset Database (Clear Current Database and add Sample Records)")
     print("2. Clear Database Records")
     __chose_menu = int(input("Enter your choice: "))
     if __choose_menu == 1:
       db_ops.create_table()
     elif __choose_menu == 2:
       db_ops.clear_database()
-  elif __choose_menu == 11:
+  elif __choose_menu == 10:
     exit(0)
   else:
     print("Invalid Choice")
