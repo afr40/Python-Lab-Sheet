@@ -155,7 +155,7 @@ class DBOperations:
       for index, column in enumerate(columns, start=1):
         print(f"{index}. Update {column}")
 
-      print("\n")
+      print("")
       update_choice = int(input("Enter Update Index: "))
       update_information = str(input("Enter Update: "))
       sql_update_data = f"UPDATE FlightInfo SET {columns[update_choice - 1]} = ? WHERE FlightID = ?"
@@ -201,7 +201,7 @@ class DBOperations:
         self.cur.execute(self.sql_select_pilot_list)
         result = self.cur.fetchall()
         self.print_table(result, 'Pilot', ['Pilot ID', 'Name'])
-        print("\n")
+        print("")
         pilot_id = int(input("Enter Pilot ID: "))
         self.cur.execute(self.sql_view_pilot_schedule, str(pilot_id,))
         result = self.cur.fetchall()
@@ -215,6 +215,30 @@ class DBOperations:
         print(e)
       finally:
         self.conn.close()
+
+
+  def view_destination(self):
+    try:
+      self.get_connection()
+      print("Select Flight ID")
+      self.cur.execute("DROP VIEW IF EXISTS DestinationInfo")
+      self.cur.execute(f'''
+        CREATE VIEW DestinationInfo AS
+        SELECT FlightID, DestinationID, City, Country 
+        FROM FlightInfo JOIN Destination 
+        WHERE FlightInfo.Destination = Destination.DestinationID
+      ''')
+      flight_id = int(input("Enter Flight ID: "))
+      self.cur.execute(f"SELECT * FROM DestinationInfo WHERE FlightID = {flight_id}")
+      result = self.cur.fetchall()
+      if result:
+        self.print_table(result, 'DestinationInfo', None)
+      else:
+        print("Cannot Find Flight in the Database")
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
 
 
   def select_all_pilots(self):
@@ -231,8 +255,8 @@ class DBOperations:
 
   def print_table(self, result, table, columns=None):
     try:
-      pd.set_option('display.max_columns', None)
-      pd.set_option('display.width', 300)
+      pd.set_option("display.max_columns", None)
+      pd.set_option("display.width", 300)
       if columns is not None:
         print(pd.DataFrame(result, columns=columns))
       elif columns is None:
@@ -292,7 +316,7 @@ while True:
   elif __choose_menu == 7:
     db_ops.view_pilot_schedule()
   elif __choose_menu == 8:
-    db_ops.delete_data()
+    db_ops.view_destination()
   elif __choose_menu == 9:
     print("1. Reset Database (Clear Current Database and add Sample Records)")
     print("2. Clear Database Records")
