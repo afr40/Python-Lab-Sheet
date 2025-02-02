@@ -182,24 +182,27 @@ class DBOperations:
     finally:
       self.conn.close()
 
-  def update_data(self):
+
+  def update_data(self, table, primary_key):
     try:
       self.get_connection()
-      self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
+      self.cur.execute("PRAGMA foreign_keys = ON")
+      self.cur.execute(f"SELECT * FROM {table} LIMIT 0")
       columns = [description[0] for description in self.cur.description]
 
-      flight_id = int(input("Enter Flight ID: "))
+      table_id = input(f"Enter {table} ID: ")
       print("Choose Information to Update")
       print("---------------")
-      print("Flight ID: " + str(flight_id))
+      print("Flight ID: " + str(table_id))
       for index, column in enumerate(columns, start=1):
         print(f"{index}. Update {column}")
 
       print("")
       update_choice = int(input("Enter Update Index: "))
       update_information = str(input("Enter Update: "))
-      sql_update_data = f"UPDATE FlightInfo SET {columns[update_choice - 1]} = ? WHERE FlightID = ?"
-      self.cur.execute(sql_update_data, (update_information, flight_id))
+      sql_update_data = f"UPDATE {table} SET {columns[update_choice - 1]} = ? WHERE {primary_key} = ?"
+      print(sql_update_data)
+      self.cur.execute(sql_update_data, (update_information, table_id))
 
       if self.cur.rowcount != 0:
         print(str(self.cur.rowcount) + "Row(s) affected.")
@@ -349,7 +352,7 @@ while True:
   elif __choose_menu == 3:
     db_ops.insert_flight_data()
   elif __choose_menu == 4:
-    db_ops.update_data()
+    db_ops.update_data('FlightInfo', 'FlightID')
   elif __choose_menu == 5:
     db_ops.delete_data()
   elif __choose_menu == 6:
