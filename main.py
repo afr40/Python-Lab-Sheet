@@ -14,12 +14,19 @@ class DBOperations:
   sql_insert_flight = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
   sql_insert_destination = "INSERT INTO Destination VALUES (?, ?, ?, ?)"
   sql_insert_pilot = "INSERT INTO Pilot VALUES (?, ?, ?, ?)"
-  sql_select_all = "SELECT * FROM FlightInfo"
+  sql_select_all_flights = "SELECT * FROM FlightInfo"
+  sql_select_all_destinations = "SELECT * FROM Destination"
   sql_select_all_pilots = "SELECT * FROM Pilot"
   sql_select_pilot_list = "SELECT PilotID, Name FROM Pilot"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
   sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
   sql_view_pilot_schedule = "SELECT Name, Schedule FROM Pilot WHERE PilotID = ?"
+  sql_flight_table = 'FlightInfo'
+  sql_destination_table = 'Destination'
+  sql_pilot_table = 'Pilot'
+  sql_flight_primary_key = 'FlightID'
+  sql_destination_primary_key = 'DestinationID'
+  sql_pilot_primary_key = 'PilotID'
 
   def __init__(self):
     try:
@@ -130,21 +137,12 @@ class DBOperations:
       self.conn.close()
 
 
-  def select_all(self):
+  def select_all(self, sql_select_all, table):
     try:
       self.get_connection()
-      self.cur.execute(self.sql_select_all)
+      self.cur.execute(sql_select_all)
       result = self.cur.fetchall()
-
-      # Find columns from FlightInfo table
-      self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
-      columns = [description[0] for description in self.cur.description]
-
-      # Print the FlightInfo in table format
-      df = pd.DataFrame(result, columns=columns)
-      pd.set_option('display.max_columns', None)
-      pd.set_option('display.width', 300)
-      print(df)
+      self.print_table(result, table, None)
     except Exception as e:
       print(e)
     finally:
@@ -333,35 +331,70 @@ class DBOperations:
 while True:
   print("\n Menu:")
   print("**********")
-  print(" 1. Show all Flights Records")
-  print(" 2. Search Flights Records")
-  print(" 3. Add Flight Record")
-  print(" 4. Update Flight Information")
-  print(" 5. Delete Flight Record")
-  print(" 7. View Pilot Schedule")
-  print(" 8. View Destination Information")
-  print(" 9. Database Admin")
-  print(" 10. Exit\n")
+  print(" 1. Show All Flight Records")
+  print(" 2. Show All Destination Records")
+  print(" 3. Show All Pilots Registered")
+  print(" 4. Manage Flights")
+  print(" 5. Manage Destinations")
+  print(" 6. Manage Pilots")
+  print(" 7. Search Functions")
+  print(" 8. Admin Section")
+  print(" 9. Exit\n")
 
   __choose_menu = int(input("Enter your choice: "))
   db_ops = DBOperations()
   if __choose_menu == 1:
-    db_ops.select_all()
+    db_ops.select_all(db_ops.sql_select_all_flights, db_ops.sql_flight_table)
   elif __choose_menu == 2:
-    db_ops.search_data()
+    db_ops.select_all(db_ops.sql_select_all_destinations, db_ops.sql_destination_table)
   elif __choose_menu == 3:
-    db_ops.insert_flight_data()
+    db_ops.select_all(db_ops.sql_select_all_pilots, db_ops.sql_pilot_table)
   elif __choose_menu == 4:
-    db_ops.update_data('FlightInfo', 'FlightID')
+    print("1. Add Flight Record")
+    print("2. Update Flight Record")
+    print("3. Delete Flight Record")
+    __choose_menu = int(input("Enter your choice: "))
+    if __choose_menu == 1:
+      db_ops.insert_flight_data()
+    elif __choose_menu == 2:
+      db_ops.update_data(db_ops.sql_flight_table, db_ops.sql_flight_primary_key)
+    elif __choose_menu == 3:
+      db_ops.delete_data()
   elif __choose_menu == 5:
-    db_ops.delete_data()
+    print("1. Add Destination Record")
+    print("2. Update Destination Record")
+    print("3. Delete Destination Record")
+    __choose_menu = int(input("Enter your choice: "))
+    if __choose_menu == 1:
+      db_ops.insert_destination_data()
+    elif __choose_menu == 2:
+      db_ops.update_data(db_ops.sql_destination_table, db_ops.sql_destination_primary_key)
+    elif __choose_menu == 3:
+      db_ops.delete_data()
+    else:
+      print("Invalid Choice")
   elif __choose_menu == 6:
-    db_ops.search_data()
+    print("1. Add Pilots Record")
+    print("2. Update Pilots Record")
+    print("3. Delete Pilots Record")
+    __choose_menu = int(input("Enter your choice: "))
+    if __choose_menu == 1:
+      db_ops.insert_pilot_data()
+    elif __choose_menu == 2:
+      db_ops.update_data(db_ops.sql_pilot_table, db_ops.sql_pilot_primary_key)
+    elif __choose_menu == 3:
+      db_ops.delete_data()
+    else:
+      print("Invalid Choice")
   elif __choose_menu == 7:
-    db_ops.view_pilot_schedule()
+    print("1. View Pilots Schedule")
+    print("2. View Destinations")
+    __choose_menu = int(input("Enter your choice: "))
+    if __choose_menu == 1:
+      db_ops.view_pilot_schedule()
+    elif __choose_menu == 2:
+      db_ops.view_destination()
   elif __choose_menu == 8:
-    db_ops.view_destination()
-  elif __choose_menu == 9:
     print("1. Reset Database (Clear Current Database and add Sample Records)")
     print("2. Clear Database Records")
     admin_selection = int(input("Enter your choice: "))
@@ -369,7 +402,7 @@ while True:
       db_ops.create_table()
     elif admin_selection == 2:
       db_ops.clear_database()
-  elif __choose_menu == 10:
+  elif __choose_menu == 9:
     exit(0)
   else:
     print("Invalid Choice")
