@@ -79,7 +79,10 @@ class DBOperations:
       self.cur.execute(self.sql_select_all)
       result = self.cur.fetchall()
 
-      df = pd.DataFrame(result, columns=['Flight ID', 'Origin', 'Destination', 'Pilot ID', 'Status', 'Schedule Time', 'Departure Date'])
+      self.cur.execute("SELECT * FROM FlightInfo LIMIT 0")
+      columns = [description[0] for description in self.cur.description]
+
+      df = pd.DataFrame(result, columns=columns)
       pd.set_option('display.max_columns', None)
       pd.set_option('display.width', 300)
       print(df)

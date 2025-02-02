@@ -1,3 +1,4 @@
+import sqlite3
 import sqlite3 as sql
 
 
@@ -57,6 +58,7 @@ class DatabaseSetup:
 
     def commit_database(self):
         self.db.commit()
+        self.db.close()
 
     def print_tables(self):
         query = "SELECT * FROM ((FlightInfo NATURAL JOIN DESTINATION) NATURAL JOIN Pilot)"
