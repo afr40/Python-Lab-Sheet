@@ -10,12 +10,14 @@ from table_utils.pilot import Pilot
 
 
 class DBOperations:
+
   sql_insert_flight = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
+  sql_insert_destination = "INSERT INTO Destination VALUES (?, ?, ?, ?)"
+  sql_insert_pilot = "INSERT INTO Pilot VALUES (?, ?, ?, ?)"
   sql_select_all = "SELECT * FROM FlightInfo"
   sql_select_all_pilots = "SELECT * FROM Pilot"
   sql_select_pilot_list = "SELECT PilotID, Name FROM Pilot"
   sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
-  # sql_alter_data = "ALTER TABLE FlightInfo ADD COLUMN FlightID INTEGER"
   sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
   sql_view_pilot_schedule = "SELECT Name, Schedule FROM Pilot WHERE PilotID = ?"
 
@@ -43,7 +45,7 @@ class DBOperations:
       create_tables(self.cur)
       insert_sample_data(self.cur)
       self.conn.commit()
-      print("Tables FlightInfor, Destination and Pilot created successfully")
+      print("Tables FlightInfo, Destination and Pilot Created Successfully")
     except Exception as e:
       print(e)
     finally:
@@ -63,7 +65,7 @@ class DBOperations:
       self.conn.close()
 
 
-  def insert_data(self):
+  def insert_flight_data(self):
     try:
       self.get_connection()
       flight = FlightInfo()
@@ -89,6 +91,44 @@ class DBOperations:
       print(e)
     finally:
       self.conn.close()
+
+
+  def insert_destination_data(self):
+    try:
+      self.get_connection()
+      destination = Destination()
+
+      destination.set_destination_id(int(input("Enter Destination ID: ")))
+      destination.set_city(str(input("Enter Destination City: ")))
+      destination.set_country(str(input("Enter Destination Country: ")))
+      destination.set_airport_id(destination.get_airport_id().split("-")[1])
+
+      self.cur.execute(self.sql_insert_destination, tuple(str(destination).split("\n")))
+      self.conn.commit()
+      print("Inserted data successfully")
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
+  def insert_pilot_data(self):
+    try:
+      self.get_connection()
+      pilot = Pilot()
+
+      pilot.set_pilot_id(int(input("Enter Pilot ID: ")))
+      pilot.set_name(str(input("Enter Pilot Name: ")))
+      pilot.set_status(str(input("Enter Pilot Status (Optional): ")))
+      pilot.set_schedule(str(input("Enter Pilot Schedule Time (HH:MM - HH:MM): ")))
+
+      self.cur.execute(self.sql_insert_pilot, tuple(str(pilot).split("\n")))
+      self.conn.commit()
+      print("Inserted data successfully")
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
 
   def select_all(self):
     try:
@@ -238,6 +278,7 @@ class DBOperations:
     except Exception as e:
       print(e)
     finally:
+      self.conn.commit()
       self.conn.close()
 
 
@@ -306,7 +347,7 @@ while True:
   elif __choose_menu == 2:
     db_ops.search_data()
   elif __choose_menu == 3:
-    db_ops.insert_data()
+    db_ops.insert_flight_data()
   elif __choose_menu == 4:
     db_ops.update_data()
   elif __choose_menu == 5:
@@ -320,10 +361,10 @@ while True:
   elif __choose_menu == 9:
     print("1. Reset Database (Clear Current Database and add Sample Records)")
     print("2. Clear Database Records")
-    __chose_menu = int(input("Enter your choice: "))
-    if __choose_menu == 1:
+    admin_selection = int(input("Enter your choice: "))
+    if admin_selection == 1:
       db_ops.create_table()
-    elif __choose_menu == 2:
+    elif admin_selection == 2:
       db_ops.clear_database()
   elif __choose_menu == 10:
     exit(0)
