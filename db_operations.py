@@ -37,9 +37,11 @@ class DBOperations:
         finally:
             self.conn.close()
 
+
     def get_connection(self):
         self.conn = sqlite3.connect("test.db")
         self.cur = self.conn.cursor()
+
 
     def create_table(self):
         try:
@@ -54,6 +56,7 @@ class DBOperations:
         finally:
             self.conn.close()
 
+
     def clear_database(self):
         try:
             self.get_connection()
@@ -65,6 +68,7 @@ class DBOperations:
             print(e)
         finally:
             self.conn.close()
+
 
     def insert_flight_data(self):
         try:
@@ -93,6 +97,7 @@ class DBOperations:
         finally:
             self.conn.close()
 
+
     def insert_destination_data(self):
         try:
             self.get_connection()
@@ -110,6 +115,7 @@ class DBOperations:
             print(e)
         finally:
             self.conn.close()
+
 
     def insert_pilot_data(self):
         try:
@@ -129,48 +135,6 @@ class DBOperations:
         finally:
             self.conn.close()
 
-    def select_all(self, sql_select_all, table):
-        try:
-            self.get_connection()
-            self.cur.execute(sql_select_all)
-            result = self.cur.fetchall()
-            self.print_table(result, table, None)
-        except Exception as e:
-            print(e)
-        finally:
-            self.conn.close()
-
-    def search_data(self):
-        try:
-            self.get_connection()
-            flight_id = int(input("Enter FlightNo: "))
-            self.cur.execute(self.sql_search, (str(flight_id),))
-            result = self.cur.fetchone()
-            if type(result) == type(tuple()):
-                for index, detail in enumerate(result):
-                    if index == 0:
-                        print("---------------")
-                        print("Flight ID: " + str(detail))
-                    elif index == 1:
-                        print("Flight Origin: " + detail)
-                    elif index == 2:
-                        print("Flight Destination: " + detail)
-                    elif index == 3:
-                        print("Pilot ID: " + str(detail))
-                    elif index == 4:
-                        print("Status: " + detail)
-                    elif index == 5:
-                        print("Schedule Time: " + detail)
-                    else:
-                        print("Departure Date: " + detail)
-                        print("---------------")
-            else:
-                print("No Record")
-
-        except Exception as e:
-            print(e)
-        finally:
-            self.conn.close()
 
     def update_data(self, table, primary_key):
         try:
@@ -204,6 +168,7 @@ class DBOperations:
         finally:
             self.conn.close()
 
+
     # Define Delete_data method to delete data from the table.
     # The user will need to input the flight id to delete the corresponding record.
     def delete_data(self, table, primary_key):
@@ -223,6 +188,52 @@ class DBOperations:
             print(e)
         finally:
             self.conn.close()
+
+
+    def select_all(self, sql_select_all, table):
+        try:
+            self.get_connection()
+            self.cur.execute(sql_select_all)
+            result = self.cur.fetchall()
+            self.print_table(result, table, None)
+        except Exception as e:
+            print(e)
+        finally:
+            self.conn.close()
+
+
+    def search_data(self):
+        try:
+            self.get_connection()
+            flight_id = int(input("Enter FlightNo: "))
+            self.cur.execute(self.sql_search, (str(flight_id),))
+            result = self.cur.fetchone()
+            if type(result) == type(tuple()):
+                for index, detail in enumerate(result):
+                    if index == 0:
+                        print("---------------")
+                        print("Flight ID: " + str(detail))
+                    elif index == 1:
+                        print("Flight Origin: " + detail)
+                    elif index == 2:
+                        print("Flight Destination: " + detail)
+                    elif index == 3:
+                        print("Pilot ID: " + str(detail))
+                    elif index == 4:
+                        print("Status: " + detail)
+                    elif index == 5:
+                        print("Schedule Time: " + detail)
+                    else:
+                        print("Departure Date: " + detail)
+                        print("---------------")
+            else:
+                print("No Record")
+
+        except Exception as e:
+            print(e)
+        finally:
+            self.conn.close()
+
 
     def view_pilot_schedule(self):
         try:
@@ -246,17 +257,18 @@ class DBOperations:
         finally:
             self.conn.close()
 
+
     def view_destination(self):
         try:
             self.get_connection()
             print("Select Flight ID")
             self.cur.execute("DROP VIEW IF EXISTS DestinationInfo")
-            self.cur.execute(f'''
-        CREATE VIEW DestinationInfo AS
-        SELECT FlightID, DestinationID, City, Country 
-        FROM FlightInfo JOIN Destination 
-        WHERE FlightInfo.Destination = Destination.DestinationID
-      ''')
+            self.cur.execute('''
+                CREATE VIEW DestinationInfo AS
+                SELECT FlightID, DestinationID, City, Country 
+                FROM FlightInfo JOIN Destination 
+                WHERE FlightInfo.Destination = Destination.DestinationID
+            ''')
             flight_id = int(input("Enter Flight ID: "))
             self.cur.execute(f"SELECT * FROM DestinationInfo WHERE FlightID = {flight_id}")
             result = self.cur.fetchall()
@@ -270,16 +282,6 @@ class DBOperations:
             self.conn.commit()
             self.conn.close()
 
-    def select_all_pilots(self):
-        try:
-            self.get_connection()
-            self.cur.execute(self.sql_select_all_pilots)
-            result = self.cur.fetchall()
-            self.print_table(result, 'Pilot')
-        except Exception as e:
-            print(e)
-        finally:
-            self.conn.close()
 
     def print_table(self, result, table, columns=None):
         try:
@@ -293,6 +295,7 @@ class DBOperations:
                 print("Cannot Find Results in the Database")
         except Exception as e:
             print(e)
+
 
     def find_columns(self, table):
         try:
