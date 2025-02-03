@@ -85,9 +85,21 @@ while True:
         print("2. Clear Database Records")
         admin_selection = int(input("Enter your choice: "))
         if admin_selection == 1:
-            db_ops.create_table()
+            admin_ops = str(input("Confirm to reset Database (y/n): "))
+            if admin_ops == 'y':
+               db_ops.create_table()
+            elif admin_ops == 'n':
+                print("Going Back to Main Menu")
+            else:
+                print("Invalid Choice")
         elif admin_selection == 2:
-            db_ops.clear_database()
+            admin_ops = str(input("Confirm to Clear Database (y/n): "))
+            if admin_ops == 'y':
+                db_ops.clear_database()
+            elif admin_ops == 'n':
+                print("Going Back to Main Menu")
+            else:
+                print("Invalid Choice")
 
     elif __choose_menu == 9:
         exit(0)
