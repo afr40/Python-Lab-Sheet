@@ -33,4 +33,4 @@ class FlightRoute:
         return self.flight_number
 
     def __str__(self):
-        return str(self.flight_id) + "\n" + self.flight_origin + "\n" + self.flight_destination + "\n" + str(self.flight_number)
+        return str(self.flight_id) + "\n" + self.flight_origin + "\n" + self.flight_destination + "\n" + self.flight_number
