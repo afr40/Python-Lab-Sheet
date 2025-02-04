@@ -9,16 +9,25 @@ class SQLQueries:
     '''
     search_flight_route = "SELECT * FROM FlightRoute WHERE FlightID = ?"
     search_flight_schedule = "SELECT * FROM FlightSchedule WHERE FlightID = ?"
+    search_pilot_available = "SELECT * FROM Pilot WHERE Status = 'Available'"
 
     # Select all entries for the tables
     select_all_flight_routes = "SELECT * FROM FlightRoute"
     select_all_flight_schedule = "SELECT * FROM FlightSchedule"
-    # select_all_flights = "SELECT FlightID, ScheduleID, Origin, Destination, Departure_date, Departure_time, Status FROM FlightRecords"
     select_all_flights = '''
-        SELECT FlightID, ScheduleID, Flight_number, Origin, o.City AS CityOrigin, Destination, d.City AS CityDestination, Departure_date, Departure_time, Status
+        SELECT FlightID, ScheduleID, Flight_number, Origin, o.City AS CityOrigin, Destination, d.City AS CityDestination,
+            Departure_date, Departure_time, Status
         FROM (FlightRoute NATURAL JOIN FlightSchedule) 
         JOIN Airport AS o ON Origin = o.AirportID
         JOIN Airport AS d ON Destination = d.AirportID
+    '''
+    select_all_flights_columns = ['FlightID', 'ScheduleID', 'Flight Number', 'Origin', 'Origin City',
+                                  'Destination', 'Destination City', 'Departure Date', 'Departure Time', 'Status']
+    select_all_pilot_schedules = '''
+        SELECT PilotID, FlightRoute.FlightID, Name, Role, Origin, Destination, Flight_number
+        FROM PilotSchedule NATURAL JOIN Pilot
+        JOIN FlightSchedule ON FlightSchedule.ScheduleID = PilotSchedule.ScheduleID
+        JOIN FlightRoute ON FlightRoute.FlightID = FlightSchedule.FlightID
     '''
     select_all_airports = "SELECT * FROM Airport"
     select_all_pilots = "SELECT * FROM Pilot"
