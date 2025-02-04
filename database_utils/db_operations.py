@@ -1,10 +1,10 @@
 import sqlite3
 import pandas as pd
-from database_setup import drop_tables, create_tables, insert_sample_data
+from database_utils.database_setup import *
+from database_utils.sql_queries import SQLQueries
 from table_utils.flight_route import FlightRoute
 from table_utils.airport import Airport
 from table_utils.pilot import Pilot
-from sql_queries import SQLQueries
 
 
 
@@ -13,7 +13,7 @@ class DBOperations:
     def __init__(self):
         try:
             self.sql = SQLQueries()
-            self.conn = sqlite3.connect("../test.db")
+            self.conn = sqlite3.connect("test.db")
             self.cur = self.conn.cursor()
             create_tables(self.cur)
             self.conn.commit()
@@ -24,7 +24,7 @@ class DBOperations:
 
 
     def get_connection(self):
-        self.conn = sqlite3.connect("../test.db")
+        self.conn = sqlite3.connect("test.db")
         self.cur = self.conn.cursor()
 
 
@@ -54,6 +54,34 @@ class DBOperations:
         finally:
             self.conn.close()
 
+
+    def insert_data(self, table_instance, table, insert_query):
+        try:
+            self.get_connection()
+            columns = self.find_columns(table)
+            methods = dir(table_instance)
+            i = 0
+            self.print_table(self.cur.execute(f"SELECT * FROM {table}"), table)
+            print("")
+            print(f"Add New Entry to {table} Records")
+            print("---------------------------------")
+            for method in methods:
+                if method.startswith("set_"):
+                    method = getattr(table_instance, method)
+                    data_to_insert = input(f"Enter {columns[i]}: ")
+                    i = i + 1
+                    method(data_to_insert)
+                else:
+                    pass
+            self.cur.execute(insert_query, tuple(str(table_instance).split("\n")))
+            self.conn.commit()
+            print("Inserted data successfully")
+        except Exception as e:
+            print(e)
+        finally:
+            self.conn.close()
+
+
     def insert_flight_data(self):
         try:
             self.get_connection()
@@ -70,7 +98,7 @@ class DBOperations:
             print('')
             flight.flight_number = str(input("Enter Flight Number: "))
 
-            self.cur.execute(self.sql.insert_flight, tuple(str(flight).split("\n")))
+            self.cur.execute(self.sql.insert_airport, tuple(str(flight).split("\n")))
             self.conn.commit()
             print("Inserted data successfully")
         except Exception as e:
@@ -104,9 +132,9 @@ class DBOperations:
             pilot = Pilot()
 
             pilot.set_pilot_id(int(input("Enter Pilot ID: ")))
+            pilot.set_airport_base(str(input("Enter Pilot Airport Base: ")))
             pilot.set_name(str(input("Enter Pilot Name: ")))
             pilot.set_status(str(input("Enter Pilot Status (Optional): ")))
-            pilot.set_schedule(str(input("Enter Pilot Schedule Time (HH:MM - HH:MM): ")))
 
             self.cur.execute(self.sql.insert_pilot, tuple(str(pilot).split("\n")))
             self.conn.commit()
@@ -289,5 +317,5 @@ class DBOperations:
                 print(f"Cannot Find the Table '{table}' in the Database")
         except Exception as e:
             print(e)
-        finally:
-            self.conn.close()
+        # finally:
+        #     self.conn.close()
