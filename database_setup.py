@@ -1,99 +1,140 @@
-import pandas as pd
-
-
 def drop_tables(cursor):
-    query = "DROP TABLE IF EXISTS FlightInfo"
+    query = "DROP VIEW IF EXISTS DestinationInfo"
     cursor.execute(query)
-    query = "DROP TABLE IF EXISTS Destination"
+    query = "DROP TABLE IF EXISTS FlightRoute"
+    cursor.execute(query)
+    query = "DROP TABLE IF EXISTS FlightSchedule"
+    cursor.execute(query)
+    query = "DROP TABLE IF EXISTS Airport"
     cursor.execute(query)
     query = "DROP TABLE IF EXISTS Pilot"
+    cursor.execute(query)
+    query = "DROP TABLE IF EXISTS PilotSchedule"
     cursor.execute(query)
 
 
 def create_tables(cursor):
-    query = '''CREATE TABLE IF NOT EXISTS FlightInfo (
+    query = '''CREATE TABLE IF NOT EXISTS FlightRoute (
         FlightID INTEGER PRIMARY KEY,
         Origin TEXT NOT NULL,
         Destination TEXT NOT NULL,
-        PilotID INTEGER NOT NULL,
-        Status TEXT,
-        Schedule_time TIME NOT NULL,
-        Departure_date DATE NOT NULL,
+        Flight_number TEXT NOT NULL,
         CHECK (Origin <> Destination), 
-        CHECK (Schedule_time IS strftime('%H:%M', Schedule_time)),
-        CHECK (Departure_date IS strftime('%Y-%m-%d', Departure_date)),
-        FOREIGN KEY(Origin) REFERENCES Destination(DestinationID),
-        FOREIGN KEY(Destination) REFERENCES Destination(DestinationID),
-        FOREIGN KEY(PILOTID) REFERENCES Pilot(PilotID)
+        FOREIGN KEY(Origin) REFERENCES Airport(AirportID) ON DELETE CASCADE,
+        FOREIGN KEY(Destination) REFERENCES Airport(AirportID) ON DELETE CASCADE
     )'''
     cursor.execute(query)
 
-    query = '''CREATE TABLE IF NOT EXISTS Destination (
-        DestinationID TEXT PRIMARY KEY,
+    query = '''CREATE TABLE IF NOT EXISTS FlightSchedule (
+        ScheduleID INTEGER PRIMARY KEY NOT NULL,
+        FlightID INTEGER NOT NULL,
+        Departure_time TIME NOT NULL,
+        Departure_date DATE NOT NULL,
+        Status TEXT CHECK (Status IN ('Scheduled', 'Delayed', 'Cancelled', 'Completed', 'On Route')),
+        CHECK (Departure_time IS strftime('%H:%M', Departure_time)),
+        CHECK (Departure_date IS strftime('%Y-%m-%d', Departure_date)),
+        FOREIGN KEY(FlightID) REFERENCES FlightRoute(FlightID) ON DELETE CASCADE
+    )'''
+    cursor.execute(query)
+
+    query = '''CREATE TABLE IF NOT EXISTS Airport (
+        AirportID TEXT PRIMARY KEY NOT NULL,
         City TEXT NOT NULL,
         Country TEXT NOT NULL,
-        AirportID TEXT NOT NULL
+        ICAO TEXT
     )'''
     cursor.execute(query)
 
     query = '''CREATE TABLE IF NOT EXISTS Pilot (
-        PilotID TEXT PRIMARY KEY NOT NULL,
+        PilotID INTEGER PRIMARY KEY NOT NULL,
+        Airport_base TEXT NOT NULL,
         Name TEXT NOT NULL,
-        Status TEXT,
-        Schedule TEXT
+        Status TEXT CHECK (Status IN ('Available', 'Unavailable', 'On Leave', 'Sick Leave', 'On Call')),
+        FOREIGN KEY (Airport_base) REFERENCES Airport(AirportID)
     )'''
     cursor.execute(query)
-    cursor.execute('''PRAGMA foreign_keys = ON''')
+
+    query = '''CREATE TABLE IF NOT EXISTS PilotSchedule (
+        PilotID INTEGER NOT NULL,
+        ScheduleID INTEGER NOT NULL,
+        Role TEXT NOT NULL CHECK (Role IN ('Captain', 'Senior First Officer', 'First Officer', 'Second Officer')),
+        PRIMARY KEY(PilotID, ScheduleID),
+        FOREIGN KEY (PilotID) REFERENCES Pilot(PilotID) ON DELETE SET NULL,
+        FOREIGN KEY (ScheduleID) REFERENCES FlightSchedule(ScheduleID)
+    )'''
+    cursor.execute(query)
 
 
 def insert_sample_data(cursor):
-    cursor.execute('''INSERT INTO Pilot VALUES (1, 'John Smith', 'Available', '08:00 - 16:00')''')
-    cursor.execute('''INSERT INTO Pilot VALUES (2, 'Emma Johnson', '', '14:00 - 22:00')''')
-    cursor.execute('''INSERT INTO Pilot VALUES (3, 'Michael Brown', 'On Leave', '')''')
-    cursor.execute('''INSERT INTO Pilot VALUES (4, 'Sophia Davis', 'Available', '06:00 - 14:00')''')
-    cursor.execute('''INSERT INTO Pilot VALUES (5, 'Daniel Wilson', '', '12:00 - 20:00')''')
-    cursor.execute('''INSERT INTO Pilot VALUES (6, 'Olivia Martinez', 'On Duty', '10:00 - 18:00')''')
-    cursor.execute('''INSERT INTO Pilot VALUES (7, 'William Anderson', 'Available', '')''')
+    # Insert pilot sample data
+    cursor.execute("INSERT INTO Pilot VALUES (1, 'JFK', 'John Smith', 'Available')")
+    cursor.execute("INSERT INTO Pilot VALUES (2, 'LAX', 'Alice Johnson', 'Unavailable')")
+    cursor.execute("INSERT INTO Pilot VALUES (3, 'ORD', 'Michael Brown', 'On Leave')")
+    cursor.execute("INSERT INTO Pilot VALUES (4, 'MIA', 'Sarah Davis', 'Sick Leave')")
+    cursor.execute("INSERT INTO Pilot VALUES (5, 'DFW', 'David Wilson', 'On Call')")
+    cursor.execute("INSERT INTO Pilot VALUES (6, 'ATL', 'James Martinez', 'Available')")
+    cursor.execute("INSERT INTO Pilot VALUES (7, 'SFO', 'Mary Taylor', 'Unavailable')")
+    cursor.execute("INSERT INTO Pilot VALUES (8, 'SEA', 'Robert Anderson', 'On Leave')")
+    cursor.execute("INSERT INTO Pilot VALUES (9, 'BOS', 'Patricia Thomas', 'Sick Leave')")
+    cursor.execute("INSERT INTO Pilot VALUES (10, 'DEN', 'Linda White', 'On Call')")
 
-    cursor.execute('''INSERT INTO Destination VALUES ('London-LHR', 'London', 'United Kingdom', 'LHR')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('New York-JFK', 'New York', 'United States', 'JFK')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Tokyo-HND', 'Tokyo', 'Japan', 'HND')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Berlin-TXL', 'Berlin', 'Germany', 'TXL')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Sydney-SYD', 'Sydney', 'Australia', 'SYD')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Toronto-YYZ', 'Toronto', 'Canada', 'YYZ')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Dubai-DXB', 'Dubai', 'United Arab Emirates', 'DXB')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Madrid-MAD', 'Madrid', 'Spain', 'MAD')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Chicago-ORD', 'Chicago', 'United States', 'ORD')''')
-    cursor.execute('''INSERT INTO Destination VALUES ('Hong Kong-HKG', 'Hong Kong', 'China (SAR)', 'HKG')''')
+    # Insert airport sample data
+    cursor.execute("INSERT INTO Airport VALUES ('JFK', 'New York', 'USA', 'KJFK')")
+    cursor.execute("INSERT INTO Airport VALUES ('LAX', 'Los Angeles', 'USA', 'KLAX')")
+    cursor.execute("INSERT INTO Airport VALUES ('ORD', 'Chicago', 'USA', 'KORD')")
+    cursor.execute("INSERT INTO Airport VALUES ('MIA', 'Miami', 'USA', 'KMIA')")
+    cursor.execute("INSERT INTO Airport VALUES ('DFW', 'Dallas', 'USA', 'KDFW')")
+    cursor.execute("INSERT INTO Airport VALUES ('ATL', 'Atlanta', 'USA', 'KATL')")
+    cursor.execute("INSERT INTO Airport VALUES ('SFO', 'San Francisco', 'USA', 'KSFO')")
+    cursor.execute("INSERT INTO Airport VALUES ('SEA', 'Seattle', 'USA', 'KSEA')")
+    cursor.execute("INSERT INTO Airport VALUES ('BOS', 'Boston', 'USA', 'KBOS')")
+    cursor.execute("INSERT INTO Airport VALUES ('DEN', 'Denver', 'USA', 'KDEN')")
 
-    cursor.execute('''INSERT INTO FlightInfo VALUES (1, 'London-LHR', 'New York-JFK', 3, '', '10:30', '2025-03-12')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (2, 'New York-JFK', 'Tokyo-HND', 6, 'Delayed', '14:45', '2025-03-15')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (3, 'Tokyo-HND', 'Berlin-TXL', 4, 'On Time', '08:15', '2025-04-01')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (4, 'Berlin-TXL', 'Sydney-SYD', 7, '', '12:00', '2025-05-05')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (5, 'Sydney-SYD', 'Toronto-YYZ', 2, 'Scheduled', '09:20', '2025-06-10')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (6, 'Toronto-YYZ', 'Dubai-DXB', 5, 'On Time', '18:30', '2025-07-22')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (7, 'Dubai-DXB', 'Madrid-MAD', 4, '', '23:45', '2025-08-19')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (8, 'Madrid-MAD', 'Chicago-ORD', 6, 'Delayed', '16:10', '2025-09-25')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (9, 'Chicago-ORD', 'Hong Kong-HKG', 3, 'On Time', '13:35', '2025-10-07')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (10, 'Hong Kong-HKG', 'London-LHR', 7, 'Scheduled', '07:55', '2025-11-13')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (11, 'New York-JFK', 'Dubai-DXB', 3, '', '11:25', '2025-12-01')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (12, 'Tokyo-HND', 'Madrid-MAD', 5, 'On Time', '17:50', '2025-01-18')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (13, 'Berlin-TXL', 'Chicago-ORD', 1, 'Delayed', '06:40', '2025-02-23')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (14, 'Sydney-SYD', 'Hong Kong-HKG', 4, 'Scheduled', '15:15', '2025-03-29')''')
-    cursor.execute('''INSERT INTO FlightInfo VALUES (15, 'Toronto-YYZ', 'London-LHR', 3, '', '20:05', '2025-04-30')''')
+    # Insert flight routes (legs) sample data
+    cursor.execute("INSERT INTO FlightRoute VALUES (1, 'JFK', 'LAX', 'AA101')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (2, 'ORD', 'MIA', 'UA202')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (3, 'DFW', 'SFO', 'DL303')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (4, 'ATL', 'SEA', 'SW404')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (5, 'LAX', 'ORD', 'AA505')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (6, 'SFO', 'JFK', 'DL606')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (7, 'SEA', 'DFW', 'UA707')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (8, 'MIA', 'ATL', 'SW808')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (9, 'BOS', 'DEN', 'AA909')")
+    cursor.execute("INSERT INTO FlightRoute VALUES (10, 'DEN', 'JFK', 'UA1010')")
 
+    # Insert flight schedules sample data
+    cursor.execute("INSERT INTO FlightSchedule VALUES (1, 5, '08:30', '2025-01-15', 'Scheduled')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (2, 3, '10:15', '2025-02-20', 'Delayed')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (3, 7, '12:00', '2025-03-10', 'Cancelled')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (4, 10, '14:45', '2025-04-25', 'Completed')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (5, 2, '16:20', '2025-05-18', 'On Route')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (6, 8, '18:35', '2025-06-12', 'Scheduled')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (7, 4, '20:10', '2025-07-07', 'Scheduled')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (8, 6, '22:25', '2025-08-29', 'Delayed')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (9, 9, '06:00', '2025-09-03', 'Cancelled')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (10, 1, '07:45', '2025-10-11', 'Completed')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (11, 10, '09:30', '2025-11-05', 'On Route')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (12, 5, '11:15', '2025-12-21', 'Scheduled')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (13, 3, '13:00', '2025-07-15', 'Delayed')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (14, 7, '15:45', '2025-03-28', 'Completed')")
+    cursor.execute("INSERT INTO FlightSchedule VALUES (15, 2, '17:20', '2025-10-09', 'On Route')")
 
-def print_tables(cursor):
-    query = "SELECT * FROM FlightInfo"
-    cursor.execute(query)
-    result = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]
+    # Insert pilot schedule data
+    cursor.execute("INSERT INTO PilotSchedule VALUES (3, 1, 'Captain')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (7, 2, 'Senior First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (2, 3, 'First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (9, 4, 'Second Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (5, 5, 'Captain')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (6, 6, 'Senior First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (10, 7, 'First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (8, 8, 'Second Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (1, 9, 'Captain')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (4, 10, 'Senior First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (5, 11, 'First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (3, 12, 'Second Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (2, 13, 'Captain')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (7, 14, 'Senior First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (9, 15, 'First Officer')")
 
-    # Print the FlightInfo in table format
-    df = pd.DataFrame(result, columns=columns)
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.width', 300)
-    print(df)
+    cursor.execute('''PRAGMA foreign_keys = ON''')
 
-
-# print_tables()
