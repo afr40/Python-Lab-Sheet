@@ -1,27 +1,36 @@
 def drop_tables(cursor):
-    query = "DROP VIEW IF EXISTS DestinationInfo"
-    cursor.execute(query)
-    query = "DROP TABLE IF EXISTS FlightRoute"
+    query = "DROP TABLE IF EXISTS PilotSchedule"
     cursor.execute(query)
     query = "DROP TABLE IF EXISTS FlightSchedule"
     cursor.execute(query)
-    query = "DROP TABLE IF EXISTS Airport"
+    query = "DROP TABLE IF EXISTS FlightRoute"
     cursor.execute(query)
     query = "DROP TABLE IF EXISTS Pilot"
     cursor.execute(query)
-    query = "DROP TABLE IF EXISTS PilotSchedule"
+    query = "DROP TABLE IF EXISTS Airport"
     cursor.execute(query)
 
 
 def create_tables(cursor):
+
+    cursor.execute('''PRAGMA foreign_keys = ON''')
+
+    query = '''CREATE TABLE IF NOT EXISTS Airport (
+        AirportID TEXT PRIMARY KEY NOT NULL,
+        City TEXT NOT NULL,
+        Country TEXT NOT NULL,
+        ICAO TEXT
+    )'''
+    cursor.execute(query)
+
     query = '''CREATE TABLE IF NOT EXISTS FlightRoute (
-        FlightID INTEGER PRIMARY KEY,
+        FlightID INTEGER PRIMARY KEY NOT NULL,
         Origin TEXT NOT NULL,
         Destination TEXT NOT NULL,
         Flight_number TEXT,
         CHECK (Origin <> Destination), 
-        FOREIGN KEY(Origin) REFERENCES Airport(AirportID) ON DELETE CASCADE,
-        FOREIGN KEY(Destination) REFERENCES Airport(AirportID) ON DELETE CASCADE
+        FOREIGN KEY(Origin) REFERENCES Airport(AirportID) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY(Destination) REFERENCES Airport(AirportID) ON DELETE CASCADE ON UPDATE CASCADE
     )'''
     cursor.execute(query)
 
@@ -33,15 +42,7 @@ def create_tables(cursor):
         Status TEXT CHECK (Status IN ('Scheduled', 'Delayed', 'Cancelled', 'Completed', 'On Route')),
         CHECK (Departure_time IS strftime('%H:%M', Departure_time)),
         CHECK (Departure_date IS strftime('%Y-%m-%d', Departure_date)),
-        FOREIGN KEY(FlightID) REFERENCES FlightRoute(FlightID) ON DELETE CASCADE
-    )'''
-    cursor.execute(query)
-
-    query = '''CREATE TABLE IF NOT EXISTS Airport (
-        AirportID TEXT PRIMARY KEY NOT NULL,
-        City TEXT NOT NULL,
-        Country TEXT NOT NULL,
-        ICAO TEXT
+        FOREIGN KEY(FlightID) REFERENCES FlightRoute(FlightID) ON DELETE CASCADE ON UPDATE CASCADE
     )'''
     cursor.execute(query)
 
@@ -50,7 +51,7 @@ def create_tables(cursor):
         Airport_base TEXT,
         Name TEXT NOT NULL,
         Status TEXT CHECK (Status IN ('Available', 'On Duty', 'On Leave', 'Sick Leave', 'On Call', '')),
-        FOREIGN KEY (Airport_base) REFERENCES Airport(AirportID)
+        FOREIGN KEY (Airport_base) REFERENCES Airport(AirportID) ON DELETE CASCADE ON UPDATE CASCADE
     )'''
     cursor.execute(query)
 
@@ -59,25 +60,13 @@ def create_tables(cursor):
         ScheduleID INTEGER NOT NULL,
         Role TEXT NOT NULL CHECK (Role IN ('Captain', 'Senior First Officer', 'First Officer', 'Second Officer')),
         PRIMARY KEY(PilotID, ScheduleID),
-        FOREIGN KEY (PilotID) REFERENCES Pilot(PilotID) ON DELETE SET NULL,
-        FOREIGN KEY (ScheduleID) REFERENCES FlightSchedule(ScheduleID)
+        FOREIGN KEY (PilotID) REFERENCES Pilot(PilotID) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (ScheduleID) REFERENCES FlightSchedule(ScheduleID) ON DELETE CASCADE ON UPDATE CASCADE
     )'''
     cursor.execute(query)
 
 
 def insert_sample_data(cursor):
-    # Insert pilot sample data
-    cursor.execute("INSERT INTO Pilot VALUES (1, 'LHR', 'John Smith', 'On Duty')")
-    cursor.execute("INSERT INTO Pilot VALUES (2, 'LGW', 'Alice Johnson', 'On Duty')")
-    cursor.execute("INSERT INTO Pilot VALUES (3, 'MAN', 'Michael Brown', 'On Duty')")
-    cursor.execute("INSERT INTO Pilot VALUES (4, 'BHX', 'Sarah Davis', 'On Duty')")
-    cursor.execute("INSERT INTO Pilot VALUES (5, 'GLA', 'David Wilson', 'On Duty')")
-    cursor.execute("INSERT INTO Pilot VALUES (6, 'EDI', 'James Martinez', 'On Duty')")
-    cursor.execute("INSERT INTO Pilot VALUES (7, 'BRS', 'Mary Taylor', 'Available')")
-    cursor.execute("INSERT INTO Pilot VALUES (8, 'NCL', 'Robert Anderson', 'Available')")
-    cursor.execute("INSERT INTO Pilot VALUES (9, 'DUB', 'Patricia Thomas', 'Sick Leave')")
-    cursor.execute("INSERT INTO Pilot VALUES (10, 'CDG', 'Linda White', 'On Leave')")
-
     # Insert airport sample data
     cursor.execute("INSERT INTO Airport VALUES ('LHR', 'London', 'UK', 'EGLL')")
     cursor.execute("INSERT INTO Airport VALUES ('LGW', 'London', 'UK', 'EGKK')")
@@ -89,6 +78,18 @@ def insert_sample_data(cursor):
     cursor.execute("INSERT INTO Airport VALUES ('NCL', 'Newcastle', 'UK', 'EGNT')")
     cursor.execute("INSERT INTO Airport VALUES ('DUB', 'Dublin', 'Ireland', 'EIDW')")
     cursor.execute("INSERT INTO Airport VALUES ('CDG', 'Paris', 'France', 'LFPG')")
+
+    # Insert pilot sample data
+    cursor.execute("INSERT INTO Pilot VALUES (1, 'LHR', 'John Smith', 'On Duty')")
+    cursor.execute("INSERT INTO Pilot VALUES (2, 'LGW', 'Alice Johnson', 'On Duty')")
+    cursor.execute("INSERT INTO Pilot VALUES (3, 'MAN', 'Michael Brown', 'On Duty')")
+    cursor.execute("INSERT INTO Pilot VALUES (4, 'BHX', 'Sarah Davis', 'On Duty')")
+    cursor.execute("INSERT INTO Pilot VALUES (5, 'GLA', 'David Wilson', 'On Duty')")
+    cursor.execute("INSERT INTO Pilot VALUES (6, 'EDI', 'James Martinez', 'On Duty')")
+    cursor.execute("INSERT INTO Pilot VALUES (7, 'BRS', 'Mary Taylor', 'Available')")
+    cursor.execute("INSERT INTO Pilot VALUES (8, 'NCL', 'Robert Anderson', 'Available')")
+    cursor.execute("INSERT INTO Pilot VALUES (9, 'DUB', 'Patricia Thomas', 'Sick Leave')")
+    cursor.execute("INSERT INTO Pilot VALUES (10, 'CDG', 'Linda White', 'On Leave')")
 
     # Insert flight routes (legs) sample data
     cursor.execute("INSERT INTO FlightRoute VALUES (101, 'LHR', 'EDI', 'BA101')")

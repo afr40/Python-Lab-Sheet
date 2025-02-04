@@ -13,7 +13,7 @@ class DBOperations:
     def __init__(self):
         try:
             self.sql = SQLQueries()
-            self.conn = sqlite3.connect("test.db")
+            self.conn = sqlite3.connect("flightsDB.db")
             self.cur = self.conn.cursor()
             create_tables(self.cur)
             self.conn.commit()
@@ -24,18 +24,19 @@ class DBOperations:
 
 
     def get_connection(self):
-        self.conn = sqlite3.connect("test.db")
+        self.conn = sqlite3.connect("flightsDB.db")
         self.cur = self.conn.cursor()
+        self.cur.execute("PRAGMA foreign_keys = ON")
 
 
     def create_table(self):
         try:
             self.get_connection()
-            drop_tables(self.cur)
+            # drop_tables(self.cur)
             create_tables(self.cur)
             insert_sample_data(self.cur)
             self.conn.commit()
-            print("Tables FlightRoute, Destination and Pilot Created Successfully")
+            print("Tables Created and Sample Data Added Successfully")
         except Exception as e:
             print(e)
         finally:
@@ -78,7 +79,7 @@ class DBOperations:
                     method(data_to_insert)
                 else:
                     pass
-            print(str(table_instance))
+
             self.cur.execute(insert_query, tuple(str(table_instance).split("\n")))
             self.conn.commit()
             print("Inserted data successfully")
@@ -169,11 +170,12 @@ class DBOperations:
             update_choice = int(input("Enter Update Index: "))
             update_information = str(input("Enter Update: "))
             sql_update_data = f"UPDATE {table} SET {columns[update_choice - 1]} = ? WHERE {primary_key} = ?"
-            print(sql_update_data)
-            self.cur.execute(sql_update_data, (update_information, table_id))
 
+            # self.cur.execute("PRAGMA foreign_keys = OFF")
+            self.cur.execute(sql_update_data, (update_information, table_id))
+            # self.cur.execute("PRAGMA foreign_keys = ON")
             if self.cur.rowcount != 0:
-                print(str(self.cur.rowcount) + "Row(s) affected.")
+                print(str(self.cur.rowcount) + " Row(s) affected.")
                 self.conn.commit()
             else:
                 print("Cannot find this record in the database")
@@ -196,7 +198,7 @@ class DBOperations:
             self.cur.execute(f"DELETE FROM {table} WHERE {primary_key} = ?", (delete_id,))
 
             if self.cur.rowcount != 0:
-                print(str(self.cur.rowcount) + "Row(s) affected.")
+                print(str(self.cur.rowcount) + " Row(s) affected.")
                 self.conn.commit()
             else:
                 print("Cannot find this record in the database")
