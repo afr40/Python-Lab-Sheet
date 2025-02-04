@@ -78,6 +78,7 @@ class DBOperations:
                     method(data_to_insert)
                 else:
                     pass
+            print(str(table_instance))
             self.cur.execute(insert_query, tuple(str(table_instance).split("\n")))
             self.conn.commit()
             print("Inserted data successfully")
@@ -156,7 +157,7 @@ class DBOperations:
             self.cur.execute("PRAGMA foreign_keys = ON")
             self.cur.execute(f"SELECT * FROM {table} LIMIT 0")
             columns = [description[0] for description in self.cur.description]
-
+            self.print_table(self.cur.execute(f"SELECT * FROM {table}"), table, columns)
             table_id = input(f"Enter {table} ID: ")
             print("Choose Information to Update")
             print("---------------")
@@ -188,7 +189,9 @@ class DBOperations:
     def delete_data(self, table, primary_key):
         try:
             self.get_connection()
-            delete_id = str(input(f"Enter {primary_key} Record to Delete: "))
+            print("")
+            self.print_table(self.cur.execute(f"SELECT * FROM {table}"), table, None)
+            delete_id = str(input(f"\nEnter {primary_key} Record to Delete: "))
 
             self.cur.execute(f"DELETE FROM {table} WHERE {primary_key} = ?", (delete_id,))
 
