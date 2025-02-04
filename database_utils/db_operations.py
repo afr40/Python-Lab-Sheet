@@ -237,6 +237,7 @@ class DBOperations:
         try:
             pd.set_option("display.max_columns", None)
             pd.set_option("display.width", 300)
+            print("")
             if columns is not None:
                 print(pd.DataFrame(result, columns=columns))
             elif columns is None:
