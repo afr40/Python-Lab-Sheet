@@ -1,25 +1,31 @@
 import sqlite3
 import pandas as pd
 from database_setup import drop_tables, create_tables, insert_sample_data
-from table_utils.flight_info import FlightInfo
-from table_utils.destination import Destination
+from table_utils.flight_route import FlightRoute
+from table_utils.airport import Airport
 from table_utils.pilot import Pilot
 
 
 
 class DBOperations:
 
-    sql_insert_flight = "INSERT INTO FlightInfo VALUES (?, ?, ?, ?, ?, ?, ?)"
+    sql_insert_flight = "INSERT INTO FlightRoute VALUES (?, ?, ?, ?)"
     sql_insert_destination = "INSERT INTO Destination VALUES (?, ?, ?, ?)"
     sql_insert_pilot = "INSERT INTO Pilot VALUES (?, ?, ?, ?)"
-    sql_select_all_flights = "SELECT * FROM FlightInfo"
+    sql_select_all_flights_view = '''
+        CREATE VIEW FlightRecords AS
+        SELECT * FROM FlightRoute NATURAL JOIN FlightSchedule 
+        WHERE FlightRoute.FlightID = FlightSchedule.FlightID
+    '''
+    sql_select_all_flights = "SELECT FlightID, ScheduleID, Origin, Destination, Departure_date, Departure_time, Status FROM FlightRecords"
     sql_select_all_destinations = "SELECT * FROM Destination"
     sql_select_all_pilots = "SELECT * FROM Pilot"
     sql_select_pilot_list = "SELECT PilotID, Name FROM Pilot"
-    sql_search = "SELECT * FROM FlightInfo WHERE FlightID = ?"
-    sql_delete_data = "DELETE FROM FlightInfo WHERE FlightID = ?"
-    sql_view_pilot_schedule = "SELECT Name, Schedule FROM Pilot WHERE PilotID = ?"
-    sql_flight_table = 'FlightInfo'
+    sql_search = "SELECT * FROM FlightRoute WHERE FlightID = ?"
+    sql_delete_data = "DELETE FROM FlightRoute WHERE FlightID = ?"
+    # sql_view_pilot_schedule = "SELECT Name, Schedule FROM Pilot WHERE PilotID = ?"
+    sql_flight_table = 'FlightRoute'
+    sql_flight_records_table = 'FlightRecords'
     sql_destination_table = 'Destination'
     sql_pilot_table = 'Pilot'
     sql_flight_primary_key = 'FlightID'
@@ -50,7 +56,7 @@ class DBOperations:
             create_tables(self.cur)
             insert_sample_data(self.cur)
             self.conn.commit()
-            print("Tables FlightInfo, Destination and Pilot Created Successfully")
+            print("Tables FlightRoute, Destination and Pilot Created Successfully")
         except Exception as e:
             print(e)
         finally:
@@ -73,21 +79,18 @@ class DBOperations:
     def insert_flight_data(self):
         try:
             self.get_connection()
-            flight = FlightInfo()
+            flight = FlightRoute()
 
             flight.set_flight_id(int(input("Enter FlightID (Unique): ")))
             print('')
-            self.print_table(self.cur.execute("SELECT DestinationID FROM Destination"), 'Destination', ['Locations Available'])
+            self.print_table(self.cur.execute("SELECT AirportID FROM Airport"), 'Destination', ['Locations Available'])
             print('')
             flight.set_flight_origin(str(input("Enter Flight Origin (Full Location Name): ")))
             flight.set_flight_destination(str(input("Enter Flight Destination (Full Location Name): ")))
             print('')
             self.print_table(self.cur.execute("SELECT PilotID, Name FROM Pilot"), 'Pilot', ['Pilot ID', 'Name'])
             print('')
-            flight.set_pilot_id(int(input("Assign Pilot ID: ")))
-            flight.set_status(str(input("Enter Flight Status (Optional): ")))
-            flight.set_schedule_time(str(input("Flight Schedule Time (HH:MM): ")))
-            flight.set_departure_date(str(input("Departure Date (YYYY-MM-DD): ")))
+            flight.flight_number = str(input("Enter Flight Number: "))
 
             self.cur.execute(self.sql_insert_flight, tuple(str(flight).split("\n")))
             self.conn.commit()
@@ -101,14 +104,14 @@ class DBOperations:
     def insert_destination_data(self):
         try:
             self.get_connection()
-            destination = Destination()
+            airport = Airport()
 
-            destination.set_destination_id(int(input("Enter Destination ID: ")))
-            destination.set_city(str(input("Enter Destination City: ")))
-            destination.set_country(str(input("Enter Destination Country: ")))
-            destination.set_airport_id(destination.get_airport_id().split("-")[1])
+            airport.set_airport_id(int(input("Enter Destination ID: ")))
+            airport.set_city(str(input("Enter Destination City: ")))
+            airport.set_country(str(input("Enter Destination Country: ")))
+            # airport.set_airport_id(airport.get_airport_id().split("-")[1])
 
-            self.cur.execute(self.sql_insert_destination, tuple(str(destination).split("\n")))
+            self.cur.execute(self.sql_insert_destination, tuple(str(airport).split("\n")))
             self.conn.commit()
             print("Inserted data successfully")
         except Exception as e:
@@ -190,12 +193,12 @@ class DBOperations:
             self.conn.close()
 
 
-    def select_all(self, sql_select_all, table):
+    def select_all(self, sql_select_all, table, columns=None):
         try:
             self.get_connection()
             self.cur.execute(sql_select_all)
             result = self.cur.fetchall()
-            self.print_table(result, table, None)
+            self.print_table(result, table, columns)
         except Exception as e:
             print(e)
         finally:
@@ -266,8 +269,8 @@ class DBOperations:
             self.cur.execute('''
                 CREATE VIEW DestinationInfo AS
                 SELECT FlightID, DestinationID, City, Country 
-                FROM FlightInfo JOIN Destination 
-                WHERE FlightInfo.Destination = Destination.DestinationID
+                FROM FlightRoute JOIN Destination 
+                WHERE FlightRoute.Destination = Destination.DestinationID
             ''')
             flight_id = int(input("Enter Flight ID: "))
             self.cur.execute(f"SELECT * FROM DestinationInfo WHERE FlightID = {flight_id}")
