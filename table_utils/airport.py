@@ -1,10 +1,10 @@
-class Destination:
+class Airport:
 
     def __init__(self):
-        self.destination_id = ''
+        self.airport_id = ''
         self.city = ''
         self.country = ''
-        self.airport_id = ''
+        self.ICAO = ''
 
     def set_destination_id(self, destination_id):
         self.destination_id = destination_id

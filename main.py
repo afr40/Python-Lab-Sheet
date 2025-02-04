@@ -23,7 +23,7 @@ while True:
     db_ops = DBOperations()
 
     if __choose_menu == 1:
-        db_ops.select_all(db_ops.sql_select_all_flights, db_ops.sql_flight_table)
+        db_ops.select_all(db_ops.sql_select_all_flights, db_ops.sql_flight_records_table, db_ops.sql_select_all_flights_view)
 
     elif __choose_menu == 2:
         db_ops.select_all(db_ops.sql_select_all_destinations, db_ops.sql_destination_table)
