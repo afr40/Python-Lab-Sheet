@@ -25,7 +25,7 @@ while True:
     sql = SQLQueries()
 
     if __choose_menu == 1:
-        db_ops.select_all(sql.select_all_flights, sql.flight_records_table, sql.select_all_flights_view)
+        db_ops.select_all(sql.select_all_flight_routes, sql.flight_route_table)
 
     elif __choose_menu == 2:
         db_ops.select_all(sql.select_all_airports, sql.airport_table)
@@ -41,9 +41,9 @@ while True:
         if __choose_menu == 1:
             db_ops.insert_flight_data()
         elif __choose_menu == 2:
-            db_ops.update_data(sql.flight_table, sql.flight_route_pk)
+            db_ops.update_data(sql.flight_route_table, sql.flight_route_pk)
         elif __choose_menu == 3:
-            db_ops.delete_data(sql.flight_table, sql.flight_route_pk)
+            db_ops.delete_data(sql.flight_route_table, sql.flight_route_pk)
 
     elif __choose_menu == 5:
         print("1. Add Destination Record")
