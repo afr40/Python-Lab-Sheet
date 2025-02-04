@@ -1,4 +1,5 @@
-from db_operations import DBOperations
+from database_utils.db_operations import DBOperations
+from database_utils.sql_queries import SQLQueries
 
 
 # The main function will parse arguments.
@@ -21,15 +22,16 @@ while True:
 
     __choose_menu = int(input("Enter your choice: "))
     db_ops = DBOperations()
+    sql = SQLQueries()
 
     if __choose_menu == 1:
-        db_ops.select_all(db_ops.sql_select_all_flights, db_ops.sql_flight_records_table, db_ops.sql_select_all_flights_view)
+        db_ops.select_all(sql.select_all_flights, sql.flight_records_table, sql.select_all_flights_view)
 
     elif __choose_menu == 2:
-        db_ops.select_all(db_ops.sql_select_all_destinations, db_ops.sql_destination_table)
+        db_ops.select_all(sql.select_all_airports, sql.airport_table)
 
     elif __choose_menu == 3:
-        db_ops.select_all(db_ops.sql_select_all_pilots, db_ops.sql_pilot_table)
+        db_ops.select_all(sql.select_all_pilots, sql.pilot_table)
 
     elif __choose_menu == 4:
         print("1. Add Flight Record")
@@ -39,9 +41,9 @@ while True:
         if __choose_menu == 1:
             db_ops.insert_flight_data()
         elif __choose_menu == 2:
-            db_ops.update_data(db_ops.sql_flight_table, db_ops.sql_flight_primary_key)
+            db_ops.update_data(sql.flight_table, sql.flight_route_pk)
         elif __choose_menu == 3:
-            db_ops.delete_data(db_ops.sql_flight_table, db_ops.sql_flight_primary_key)
+            db_ops.delete_data(sql.flight_table, sql.flight_route_pk)
 
     elif __choose_menu == 5:
         print("1. Add Destination Record")
@@ -49,11 +51,11 @@ while True:
         print("3. Delete Destination Record")
         __choose_menu = int(input("Enter your choice: "))
         if __choose_menu == 1:
-            db_ops.insert_destination_data()
+            db_ops.insert_airport_data()
         elif __choose_menu == 2:
-            db_ops.update_data(db_ops.sql_destination_table, db_ops.sql_destination_primary_key)
+            db_ops.update_data(sql.airport_table, sql.airport_pk)
         elif __choose_menu == 3:
-            db_ops.delete_data(db_ops.sql_destination_table, db_ops.sql_destination_primary_key)
+            db_ops.delete_data(sql.airport_table, sql.airport_pk)
         else:
             print("Invalid Choice")
 
@@ -65,9 +67,9 @@ while True:
         if __choose_menu == 1:
             db_ops.insert_pilot_data()
         elif __choose_menu == 2:
-            db_ops.update_data(db_ops.sql_pilot_table, db_ops.sql_pilot_primary_key)
+            db_ops.update_data(sql.pilot_table, sql.pilot_pk)
         elif __choose_menu == 3:
-            db_ops.delete_data(db_ops.sql_pilot_table, db_ops.sql_pilot_primary_key)
+            db_ops.delete_data(sql.pilot_table, sql.pilot_pk)
         else:
             print("Invalid Choice")
 
