@@ -8,6 +8,9 @@ class FlightSchedule:
         self.status = ''
 
     # Set methods
+    def set_schedule_id(self, schedule_id):
+        self.schedule_id = schedule_id
+
     def set_flight_id(self, flight_id):
         self.flight_id = flight_id
 
@@ -34,4 +37,5 @@ class FlightSchedule:
         return self.status
 
     def __str__(self):
-        return str(self.flight_id) + "\n" + self.departure_time + "\n" + self.departure_date + "\n" + self.status
+        return (str(self.schedule_id) + "\n" +str(self.flight_id) + "\n" + self.departure_time + "\n" +
+                self.departure_date + "\n" + self.status)

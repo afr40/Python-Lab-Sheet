@@ -59,16 +59,21 @@ class DBOperations:
         try:
             self.get_connection()
             columns = self.find_columns(table)
-            methods = dir(table_instance)
-            i = 0
             self.print_table(self.cur.execute(f"SELECT * FROM {table}"), table)
+
             print("")
             print(f"Add New Entry to {table} Records")
             print("---------------------------------")
+
+            methods = dir(table_instance)
+            i = 0
             for method in methods:
                 if method.startswith("set_"):
                     method = getattr(table_instance, method)
-                    data_to_insert = input(f"Enter {columns[i]}: ")
+                    if "ID" in columns[i]:
+                        data_to_insert = input(f"Enter a {columns[i]} (Unique): ")
+                    else:
+                        data_to_insert = input(f"Enter {columns[i]}: ")
                     i = i + 1
                     method(data_to_insert)
                 else:
@@ -292,7 +297,7 @@ class DBOperations:
             self.conn.close()
 
 
-    def print_table(self, result, table, columns=None):
+    def print_table(self, result, table=None, columns=None):
         try:
             pd.set_option("display.max_columns", None)
             pd.set_option("display.width", 300)
