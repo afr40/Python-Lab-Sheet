@@ -6,7 +6,7 @@ class Airport:
         self.country = ''
         self.icao = ''
 
-    def set_destination_id(self, airport_id):
+    def set_airport_id(self, airport_id):
         self.airport_id = airport_id
 
     def set_city(self, city):
@@ -15,8 +15,8 @@ class Airport:
     def set_country(self, country):
         self.country = country
 
-    def set_airport_id(self, airport_id):
-        self.airport_id = airport_id
+    def set_icao(self, icao):
+        self.icao = icao
 
     def get_airport_id(self):
         return self.airport_id
