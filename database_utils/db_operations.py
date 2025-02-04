@@ -32,7 +32,7 @@ class DBOperations:
     def create_table(self):
         try:
             self.get_connection()
-            # drop_tables(self.cur)
+            drop_tables(self.cur)
             create_tables(self.cur)
             insert_sample_data(self.cur)
             self.conn.commit()
@@ -66,84 +66,19 @@ class DBOperations:
             print(f"Add New Entry to {table} Records")
             print("---------------------------------")
 
-            methods = dir(table_instance)
+            class_variables = table_instance.__dict__
             i = 0
-            for method in methods:
-                if method.startswith("set_"):
-                    method = getattr(table_instance, method)
-                    if "ID" in columns[i]:
-                        data_to_insert = input(f"Enter a {columns[i]} (Unique): ")
-                    else:
-                        data_to_insert = input(f"Enter {columns[i]}: ")
-                    i = i + 1
-                    method(data_to_insert)
+            for class_variable in class_variables:
+                method = "set_" + class_variable
+                method = getattr(table_instance, method)
+                if "ID" in columns[i]:
+                    data_to_insert = input(f"Enter a {columns[i]} (Unique): ")
                 else:
-                    pass
+                    data_to_insert = input(f"Enter {columns[i]}: ")
+                i = i + 1
+                method(data_to_insert)
 
             self.cur.execute(insert_query, tuple(str(table_instance).split("\n")))
-            self.conn.commit()
-            print("Inserted data successfully")
-        except Exception as e:
-            print(e)
-        finally:
-            self.conn.close()
-
-
-    def insert_flight_data(self):
-        try:
-            self.get_connection()
-            flight = FlightRoute()
-
-            flight.set_flight_id(int(input("Enter FlightID (Unique): ")))
-            print('')
-            self.print_table(self.cur.execute("SELECT AirportID FROM Airport"), 'Destination', ['Locations Available'])
-            print('')
-            flight.set_flight_origin(str(input("Enter Flight Origin (Full Location Name): ")))
-            flight.set_flight_destination(str(input("Enter Flight Destination (Full Location Name): ")))
-            print('')
-            self.print_table(self.cur.execute("SELECT PilotID, Name FROM Pilot"), 'Pilot', ['Pilot ID', 'Name'])
-            print('')
-            flight.flight_number = str(input("Enter Flight Number: "))
-
-            self.cur.execute(self.sql.insert_airport, tuple(str(flight).split("\n")))
-            self.conn.commit()
-            print("Inserted data successfully")
-        except Exception as e:
-            print(e)
-        finally:
-            self.conn.close()
-
-
-    def insert_airport_data(self):
-        try:
-            self.get_connection()
-            airport = Airport()
-
-            airport.set_airport_id(int(input("Enter Destination ID: ")))
-            airport.set_city(str(input("Enter Destination City: ")))
-            airport.set_country(str(input("Enter Destination Country: ")))
-            # airport.set_airport_id(airport.get_airport_id().split("-")[1])
-
-            self.cur.execute(self.sql.insert_airport, tuple(str(airport).split("\n")))
-            self.conn.commit()
-            print("Inserted data successfully")
-        except Exception as e:
-            print(e)
-        finally:
-            self.conn.close()
-
-
-    def insert_pilot_data(self):
-        try:
-            self.get_connection()
-            pilot = Pilot()
-
-            pilot.set_pilot_id(int(input("Enter Pilot ID: ")))
-            pilot.set_airport_base(str(input("Enter Pilot Airport Base: ")))
-            pilot.set_name(str(input("Enter Pilot Name: ")))
-            pilot.set_status(str(input("Enter Pilot Status (Optional): ")))
-
-            self.cur.execute(self.sql.insert_pilot, tuple(str(pilot).split("\n")))
             self.conn.commit()
             print("Inserted data successfully")
         except Exception as e:
@@ -284,8 +219,8 @@ class DBOperations:
             self.cur.execute("DROP VIEW IF EXISTS DestinationInfo")
             self.cur.execute('''
                 CREATE VIEW DestinationInfo AS
-                SELECT FlightID, AirportID, City, Country 
-                FROM FlightRoute JOIN Airport 
+                SELECT FlightID, AirportID, City, Country
+                FROM FlightRoute JOIN Airport
                 WHERE FlightRoute.Destination = Airport.AirportID
             ''')
             flight_id = int(input("Enter Flight ID: "))
