@@ -20,6 +20,7 @@ class SQLQueries:
         FROM (FlightRoute NATURAL JOIN FlightSchedule) 
         JOIN Airport AS o ON Origin = o.AirportID
         JOIN Airport AS d ON Destination = d.AirportID
+        ORDER BY FlightID
     '''
     select_all_flights_columns = ['FlightID', 'ScheduleID', 'Flight Number', 'Origin', 'Origin City',
                                   'Destination', 'Destination City', 'Departure Date', 'Departure Time', 'Status']
@@ -56,7 +57,7 @@ class SQLQueries:
 
     # Primary keys
     flight_route_pk = 'FlightID'
-    flight_schedule_pk = 'FlightSchedule'
+    flight_schedule_pk = 'ScheduleID'
     airport_pk = 'AirportID'
     pilot_pk = 'PilotID'
 

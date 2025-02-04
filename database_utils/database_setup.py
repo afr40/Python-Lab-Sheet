@@ -18,7 +18,7 @@ def create_tables(cursor):
         FlightID INTEGER PRIMARY KEY,
         Origin TEXT NOT NULL,
         Destination TEXT NOT NULL,
-        Flight_number TEXT NOT NULL,
+        Flight_number TEXT,
         CHECK (Origin <> Destination), 
         FOREIGN KEY(Origin) REFERENCES Airport(AirportID) ON DELETE CASCADE,
         FOREIGN KEY(Destination) REFERENCES Airport(AirportID) ON DELETE CASCADE
