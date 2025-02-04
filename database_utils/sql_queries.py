@@ -12,7 +12,14 @@ class SQLQueries:
 
     # Select all entries for the tables
     select_all_flight_routes = "SELECT * FROM FlightRoute"
-    select_all_flights = "SELECT FlightID, ScheduleID, Origin, Destination, Departure_date, Departure_time, Status FROM FlightRecords"
+    select_all_flight_schedule = "SELECT * FROM FlightSchedule"
+    # select_all_flights = "SELECT FlightID, ScheduleID, Origin, Destination, Departure_date, Departure_time, Status FROM FlightRecords"
+    select_all_flights = '''
+        SELECT FlightID, ScheduleID, Flight_number, Origin, o.City AS CityOrigin, Destination, d.City AS CityDestination, Departure_date, Departure_time, Status
+        FROM (FlightRoute NATURAL JOIN FlightSchedule) 
+        JOIN Airport AS o ON Origin = o.AirportID
+        JOIN Airport AS d ON Destination = d.AirportID
+    '''
     select_all_airports = "SELECT * FROM Airport"
     select_all_pilots = "SELECT * FROM Pilot"
     select_pilot_list = "SELECT PilotID, Name FROM Pilot"
