@@ -2,12 +2,15 @@ class Pilot:
 
     def __init__(self):
         self.pilot_id = ''
+        self.airport_base = ''
         self.name = ''
         self.status = ''
-        self.schedule = ''
 
     def set_pilot_id(self, pilot_id):
         self.pilot_id = pilot_id
+
+    def set_airport_base(self, airport_base):
+        self.airport_base = airport_base
 
     def set_name(self, name):
         self.name = name
@@ -15,11 +18,11 @@ class Pilot:
     def set_status(self, status):
         self.status = status
 
-    def set_schedule(self, schedule):
-        self.schedule = schedule
-
     def get_pilot_id(self):
         return self.pilot_id
+
+    def get_airport_base(self):
+        return self.airport_base
 
     def get_name(self):
         return self.name
@@ -27,10 +30,5 @@ class Pilot:
     def get_status(self):
         return self.status
 
-    def get_schedule(self):
-        return self.schedule
-
     def __str__(self):
-        return (
-                self.pilot_id + "\n" + self.name + "\n" + self.status + "\n" + self.schedule
-        )
+        return self.pilot_id + "\n" + self.airport_base + "\n" + self.name + "\n" + self.status
