@@ -2,10 +2,6 @@ import sqlite3
 import pandas as pd
 from database_utils.database_setup import *
 from database_utils.sql_queries import SQLQueries
-from table_utils.flight_route import FlightRoute
-from table_utils.airport import Airport
-from table_utils.pilot import Pilot
-
 
 
 class DBOperations:
@@ -262,5 +258,3 @@ class DBOperations:
                 print(f"Cannot Find the Table '{table}' in the Database")
         except Exception as e:
             print(e)
-        # finally:
-        #     self.conn.close()
