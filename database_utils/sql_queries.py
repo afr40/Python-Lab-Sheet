@@ -11,13 +11,14 @@ class SQLQueries:
     search_flight_schedule = "SELECT * FROM FlightSchedule WHERE FlightID = ?"
 
     # Select all entries for the tables
+    select_all_flight_routes = "SELECT * FROM FlightRoute"
     select_all_flights = "SELECT FlightID, ScheduleID, Origin, Destination, Departure_date, Departure_time, Status FROM FlightRecords"
     select_all_airports = "SELECT * FROM Airport"
     select_all_pilots = "SELECT * FROM Pilot"
     select_pilot_list = "SELECT PilotID, Name FROM Pilot"
 
     # Insert queries
-    insert_flight = "INSERT INTO FlightRoute VALUES (?, ?, ?, ?)"
+    insert_flight_route = "INSERT INTO FlightRoute VALUES (?, ?, ?, ?)"
     insert_flight_schedule = "INSERT INTO FlightSchedule VALUES (?, ?, ?, ?, ?)"
     insert_airport = "INSERT INTO Airport VALUES (?, ?, ?, ?)"
     insert_pilot = "INSERT INTO Pilot VALUES (?, ?, ?, ?)"
@@ -30,7 +31,7 @@ class SQLQueries:
     delete_airport = "DELETE FROM Airport WHERE AirportID = ?"
 
     # Tables names
-    flight_table = 'FlightRoute'
+    flight_route_table = 'FlightRoute'
     flight_schedule_table = 'FlightSchedule'
     flight_records_table = 'FlightRecords'
     airport_table = 'Airport'
