@@ -47,9 +47,9 @@ def create_tables(cursor):
 
     query = '''CREATE TABLE IF NOT EXISTS Pilot (
         PilotID INTEGER PRIMARY KEY NOT NULL,
-        Airport_base TEXT NOT NULL,
+        Airport_base TEXT,
         Name TEXT NOT NULL,
-        Status TEXT CHECK (Status IN ('Available', 'Unavailable', 'On Leave', 'Sick Leave', 'On Call')),
+        Status TEXT CHECK (Status IN ('Available', 'Unavailable', 'On Leave', 'Sick Leave', 'On Call', '')),
         FOREIGN KEY (Airport_base) REFERENCES Airport(AirportID)
     )'''
     cursor.execute(query)
