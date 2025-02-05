@@ -117,6 +117,40 @@ class DBOperations:
             self.conn.close()
 
 
+    def update_pilot_schedule(self):
+        """
+        Updates data into the table using generic queries, and printing the tables before updating
+        """
+        try:
+            self.get_connection()
+            self.cur.execute("PRAGMA foreign_keys = ON")
+            self.cur.execute(f"SELECT * FROM PilotSchedule LIMIT 0")
+            columns = [description[0] for description in self.cur.description]
+            pilot_id = input(f"Enter Pilot ID: ")
+            schedule_id = input(f"Enter Schedule ID: ")
+            print("Choose Information to Update")
+            print("---------------")
+            for index, column in enumerate(columns, start=1):
+                print(f"{index}. Update {column}")
+
+            print("")
+            update_choice = int(input("Enter Update Index: "))
+            update_information = str(input("Enter Update: "))
+            sql_update_data = f"UPDATE PilotSchedule SET {columns[update_choice - 1]} = ? WHERE PilotID = ? AND ScheduleID = ?"
+
+            self.cur.execute(sql_update_data, (update_information, pilot_id, schedule_id))
+            if self.cur.rowcount != 0:
+                print(str(self.cur.rowcount) + " Row(s) affected.")
+                self.conn.commit()
+            else:
+                print("Cannot find this record in the database")
+
+        except Exception as e:
+            print(e)
+        finally:
+            self.conn.close()
+
+
     def update_data(self, table, primary_key):
         """
         Updates data into the table using generic queries, and printing the tables before updating
@@ -130,7 +164,7 @@ class DBOperations:
             table_id = input(f"Enter {table} ID: ")
             print("Choose Information to Update")
             print("---------------")
-            # print(f"{primary_key} : " + str(table_id))
+
             for index, column in enumerate(columns, start=1):
                 print(f"{index}. Update {column}")
 
@@ -153,6 +187,9 @@ class DBOperations:
 
 
     def delete_pilot_schedule(self):
+        """
+        Deletes data from the pilot schedule table
+        """
         try:
             self.get_connection()
             print("")

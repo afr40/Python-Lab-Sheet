@@ -138,8 +138,8 @@ while True:
             db_ops.update_data(sql.pilot_table, sql.pilot_pk)
         elif __choose_menu == 4:
             db_ops.select_all(sql.search_pilot_available, sql.pilot_table)
-            db_ops.select_all(sql.select_all_schedules, None, sql.select_all_pilot_schedules_columns)
-            db_ops.update_data(sql.pilot_schedule_table, sql.pilot_schedule_pk)
+            db_ops.select_all(sql.select_all_schedules, None, sql.select_all_schedules_columns)
+            db_ops.update_pilot_schedule()
         elif __choose_menu == 5:
             db_ops.delete_data(sql.pilot_table, sql.pilot_pk)
         elif __choose_menu == 6:

@@ -20,11 +20,11 @@ class SQLQueries:
         ORDER BY FlightID
     '''
     select_all_schedules = '''
-        SELECT PilotID, FlightSchedule.ScheduleID, FlightSchedule.FlightID, Origin, Destination
+        SELECT PilotID, FlightSchedule.ScheduleID, Role, FlightSchedule.FlightID, Origin, Destination
         FROM FlightSchedule LEFT JOIN PilotSchedule ON FlightSchedule.ScheduleID = PilotSchedule.ScheduleID
         JOIN FlightRoute ON FlightSchedule.FlightID = FlightRoute.FlightID
     '''
-    select_all_schedules_columns = ['Pilot ID', 'Flight Schedule ID', 'Flight ID', 'Origin', 'Destination']
+    select_all_schedules_columns = ['Pilot ID', 'Flight Schedule ID', 'Role', 'Flight ID', 'Origin', 'Destination']
 
     # Select all entries for the tables
     select_all_flight_routes = "SELECT * FROM FlightRoute"
