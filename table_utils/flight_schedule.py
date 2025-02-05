@@ -1,4 +1,7 @@
 class FlightSchedule:
+    """
+    Flight schedule class to hold information about each flight
+    """
 
     def __init__(self):
         self.schedule_id = 0

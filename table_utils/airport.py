@@ -1,5 +1,7 @@
 class Airport:
-
+    """
+    Represents an airport with attributes like airport ID, city, country, and ICAO code.
+    """
     def __init__(self):
         self.airport_id = ''
         self.city = ''

@@ -1,4 +1,7 @@
 class Pilot:
+    """
+    Pilot class that holds information about pilots airport base, name and status
+    """
 
     def __init__(self):
         self.pilot_id = ''

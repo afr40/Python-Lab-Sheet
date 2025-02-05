@@ -1,4 +1,7 @@
 class FlightRoute:
+    """
+    Flight Route class containing data about destination, origin and flight number
+    """
 
     def __init__(self):
         self.flight_id = 0

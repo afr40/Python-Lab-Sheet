@@ -1,4 +1,7 @@
 class PilotSchedule:
+    """
+    Pilots Schedule build from the pilot ID and the scheduled flight ID
+    """
 
     def __init__(self):
         self.schedule_id = 0
