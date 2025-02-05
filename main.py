@@ -5,12 +5,16 @@ from table_utils.flight_route import FlightRoute
 from table_utils.flight_schedule import FlightSchedule
 from table_utils.pilot import Pilot
 
-# The main function will parse arguments.
-# These argument will be defined by the users on the console.
-# The user will select a choice from the menu to interact with the database.
+"""
+The Main Menu of the database:
 
+1. The user will select a choice from the menu to interact with the database.
+2. DBOperations will contain all the functions to create, delete, update, and insert data.
+3. SQL Queries are declared on its own class. 
+"""
 
 while True:
+    # Print menu
     print("\n Menu:")
     print("**********")
     print("1. Show Flight Information")
@@ -28,6 +32,7 @@ while True:
     db_ops = DBOperations()
     sql = SQLQueries()
 
+    # Menu Selection
     if __choose_menu == 1:
         print("1. Flights (Routes and Schedules)")
         print("2. Flight Routes")
@@ -124,13 +129,16 @@ while True:
             print("Invalid Choice")
 
     elif __choose_menu == 7:
-        print("1. View Pilots Schedule")
-        print("2. View Destinations")
+        print("1. Search Pilot Schedule")
+        print("2. Search for Flight Routes Destination")
+        print("3. Search for a Flight")
         __choose_menu = int(input("Enter your choice: "))
         if __choose_menu == 1:
             db_ops.view_pilot_schedule()
         elif __choose_menu == 2:
             db_ops.view_destination()
+        elif __choose_menu == 3:
+            db_ops.search_data()
         else:
             print("Invalid Choice")
 

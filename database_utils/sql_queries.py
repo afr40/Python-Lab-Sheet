@@ -1,15 +1,24 @@
 class SQLQueries:
+    """
+    SQL Queries to interact with the database.
 
+    Different queries: selection, update, delete and insertions are defined, as well as
+    the primary keys and tables names for easy access in the whole application.
+    """
 
     # sql_view_pilot_schedule = "SELECT Name, Schedule FROM Pilot WHERE PilotID = ?"
-    select_all_flights_view = '''
-        CREATE VIEW FlightRecords AS
-        SELECT * FROM FlightRoute NATURAL JOIN FlightSchedule 
-        WHERE FlightRoute.FlightID = FlightSchedule.FlightID
-    '''
     search_flight_route = "SELECT * FROM FlightRoute WHERE FlightID = ?"
     search_flight_schedule = "SELECT * FROM FlightSchedule WHERE FlightID = ?"
     search_pilot_available = "SELECT * FROM Pilot WHERE Status = 'Available'"
+    search_flight = '''
+        SELECT FlightID, ScheduleID, Flight_number, Origin, o.City AS CityOrigin, Destination, d.City AS CityDestination,
+            Departure_date, Departure_time, Status
+        FROM (FlightRoute NATURAL JOIN FlightSchedule) 
+        JOIN Airport AS o ON Origin = o.AirportID
+        JOIN Airport AS d ON Destination = d.AirportID
+        WHERE ScheduleID = ? 
+        ORDER BY FlightID
+    '''
 
     # Select all entries for the tables
     select_all_flight_routes = "SELECT * FROM FlightRoute"

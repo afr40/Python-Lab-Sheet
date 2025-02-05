@@ -5,6 +5,9 @@ from database_utils.sql_queries import SQLQueries
 
 
 class DBOperations:
+    """
+    Performs actions in the database.
+    """
 
     def __init__(self):
         try:
@@ -53,6 +56,9 @@ class DBOperations:
 
 
     def insert_data(self, table_instance, table, insert_query):
+        """
+        Inserts data into the table using a table instance the name of a table and the insert query.
+        """
         try:
             self.get_connection()
             columns = self.find_columns(table)
@@ -84,6 +90,9 @@ class DBOperations:
 
 
     def update_data(self, table, primary_key):
+        """
+        Updates data into the table using generic queries, and printing the tables before updating
+        """
         try:
             self.get_connection()
             self.cur.execute("PRAGMA foreign_keys = ON")
@@ -102,9 +111,7 @@ class DBOperations:
             update_information = str(input("Enter Update: "))
             sql_update_data = f"UPDATE {table} SET {columns[update_choice - 1]} = ? WHERE {primary_key} = ?"
 
-            # self.cur.execute("PRAGMA foreign_keys = OFF")
             self.cur.execute(sql_update_data, (update_information, table_id))
-            # self.cur.execute("PRAGMA foreign_keys = ON")
             if self.cur.rowcount != 0:
                 print(str(self.cur.rowcount) + " Row(s) affected.")
                 self.conn.commit()
@@ -117,9 +124,13 @@ class DBOperations:
             self.conn.close()
 
 
-    # Define Delete_data method to delete data from the table.
-    # The user will need to input the flight id to delete the corresponding record.
     def delete_data(self, table, primary_key):
+        """
+        Deletes data from the table using generic queries.
+
+        :param table: Targeted table to delete data from
+        :param primary_key: Primary key to find the entry
+        """
         try:
             self.get_connection()
             print("")
@@ -141,6 +152,9 @@ class DBOperations:
 
 
     def select_all(self, sql_select_all, table, columns=None):
+        """
+        Select all data from a particular table and prints its data
+        """
         try:
             self.get_connection()
             self.cur.execute(sql_select_all)
@@ -153,10 +167,13 @@ class DBOperations:
 
 
     def search_data(self):
+        """
+        Searches for a scheduled fligth ID and then prints its data
+        """
         try:
             self.get_connection()
-            flight_id = int(input("Enter FlightNo: "))
-            self.cur.execute(self.sql.search_flight_route, (str(flight_id),))
+            schedule_id = int(input("Enter Scheduled Flight ID: "))
+            self.cur.execute(self.sql.search_flight, (str(schedule_id),))
             result = self.cur.fetchone()
             if type(result) == type(tuple()):
                 for index, detail in enumerate(result):
@@ -164,17 +181,23 @@ class DBOperations:
                         print("---------------")
                         print("Flight ID: " + str(detail))
                     elif index == 1:
-                        print("Flight Origin: " + detail)
+                        print("Schedule ID: " + str(detail))
                     elif index == 2:
-                        print("Flight Destination: " + detail)
+                        print("Flight Number: " + detail)
                     elif index == 3:
-                        print("Pilot ID: " + str(detail))
+                        print("Flight Origin: " + detail)
                     elif index == 4:
-                        print("Status: " + detail)
+                        print("Flight City Origin: " + detail)
                     elif index == 5:
-                        print("Schedule Time: " + detail)
-                    else:
+                        print("Flight Destination: " + detail)
+                    elif index == 6:
+                        print("Flight City Destination: " + detail)
+                    elif index == 7:
                         print("Departure Date: " + detail)
+                    elif index == 8:
+                        print("Departure Time: " + detail)
+                    else:
+                        print("Status: " + detail)
                         print("---------------")
             else:
                 print("No Record")
@@ -186,6 +209,9 @@ class DBOperations:
 
 
     def view_pilot_schedule(self):
+        """
+        Searches for pilots schedule from a list of pilots
+        """
         try:
             self.get_connection()
             print("View Pilot Schedule. List of Pilots: ")
@@ -209,6 +235,9 @@ class DBOperations:
 
 
     def view_destination(self):
+        """
+        Prints details of route destination from a Fligth Route ID
+        """
         try:
             self.get_connection()
             print("Select Flight ID")
@@ -234,6 +263,14 @@ class DBOperations:
 
 
     def print_table(self, result, table=None, columns=None):
+        """
+        Utility function for printing table
+
+        :param result: Takes the result of the SQL query
+        :param table: table name
+        :param columns: Custom column names
+        :return:
+        """
         try:
             pd.set_option("display.max_columns", None)
             pd.set_option("display.width", 300)
@@ -249,6 +286,9 @@ class DBOperations:
 
 
     def find_columns(self, table):
+        """
+        Utility functino for finding columns names in a table
+        """
         try:
             self.get_connection()
             self.cur.execute(f"SELECT * FROM {table} LIMIT 0")

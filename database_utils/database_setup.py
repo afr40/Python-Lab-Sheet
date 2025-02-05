@@ -1,4 +1,7 @@
 def drop_tables(cursor):
+    """
+    Used to drop tables in the database.
+    """
     query = "DROP TABLE IF EXISTS PilotSchedule"
     cursor.execute(query)
     query = "DROP TABLE IF EXISTS FlightSchedule"
@@ -12,9 +15,14 @@ def drop_tables(cursor):
 
 
 def create_tables(cursor):
+    """
+    Create tables in the database.
 
+    PRAGMA with foreign keys on, used to enable foreign keys between tables.
+    """
     cursor.execute('''PRAGMA foreign_keys = ON''')
 
+    # Airport table, AirportID is the IATA code
     query = '''CREATE TABLE IF NOT EXISTS Airport (
         AirportID TEXT PRIMARY KEY NOT NULL,
         City TEXT NOT NULL,
@@ -67,6 +75,10 @@ def create_tables(cursor):
 
 
 def insert_sample_data(cursor):
+    """
+    Sample data for insertion.
+    """
+
     # Insert airport sample data
     cursor.execute("INSERT INTO Airport VALUES ('LHR', 'London', 'UK', 'EGLL')")
     cursor.execute("INSERT INTO Airport VALUES ('LGW', 'London', 'UK', 'EGKK')")
