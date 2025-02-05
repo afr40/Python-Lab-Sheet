@@ -119,7 +119,7 @@ class DBOperations:
 
     def update_pilot_schedule(self):
         """
-        Updates data into the table using generic queries, and printing the tables before updating
+        Updates data from the pilot schedule table
         """
         try:
             self.get_connection()
