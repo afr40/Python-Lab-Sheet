@@ -9,7 +9,6 @@ class DBOperations:
     """
     Performs actions in the database.
     """
-
     def __init__(self):
         try:
             self.sql = SQLQueries()
@@ -68,7 +67,7 @@ class DBOperations:
             print("")
             print(f"Add New Entry to {table} Records")
             print("---------------------------------")
-
+            # Find class attributes, loop and find the set methods to call them
             class_variables = table_instance.__dict__
             i = 0
             for class_variable in class_variables:
@@ -80,7 +79,7 @@ class DBOperations:
                     data_to_insert = input(f"Enter {columns[i]}: ")
                 i = i + 1
                 method(data_to_insert)
-
+            # Insert data collected from the object instance
             self.cur.execute(insert_query, tuple(str(table_instance).split("\n")))
             self.conn.commit()
             print("Inserted data successfully")
@@ -97,7 +96,7 @@ class DBOperations:
         try:
             self.get_connection()
             pilot_schedule = PilotSchedule()
-
+            # Set all pilot attributes
             pilot_schedule.set_pilot_id(int(input("Enter Pilot ID : ")))
             print('')
             self.print_table(self.cur.execute("SELECT * FROM FlightSchedule"), 'FlightSchedule')
@@ -106,7 +105,7 @@ class DBOperations:
             pilot_schedule.set_role(str(input("Enter Pilot Role: ")))
             print('')
             sql = SQLQueries()
-
+            # Set the selected pilot to unavailable
             self.cur.execute(sql.insert_pilot_schedule, tuple(str(pilot_schedule).split("\n")))
             self.cur.execute("UPDATE Pilot SET Status = 'Unavailable' WHERE PilotID = ?", (int(pilot_schedule.get_pilot_id()),))
             self.conn.commit()
@@ -158,17 +157,19 @@ class DBOperations:
         try:
             self.get_connection()
             self.cur.execute("PRAGMA foreign_keys = ON")
+            # Print table to be updated
             self.cur.execute(f"SELECT * FROM {table} LIMIT 0")
             columns = [description[0] for description in self.cur.description]
             self.print_table(self.cur.execute(f"SELECT * FROM {table}"), table, columns)
             table_id = input(f"Enter {table} ID: ")
             print("Choose Information to Update")
             print("---------------")
-
+            # Print the attributes that can be updated
             for index, column in enumerate(columns, start=1):
                 print(f"{index}. Update {column}")
 
             print("")
+            # Get input and update selected attribute with input
             update_choice = int(input("Enter Update Index: "))
             update_information = str(input("Enter Update: "))
             sql_update_data = f"UPDATE {table} SET {columns[update_choice - 1]} = ? WHERE {primary_key} = ?"
@@ -195,7 +196,7 @@ class DBOperations:
             print("")
             pilot_id = str(input(f"\nEnter PilotID Record: "))
             schedule_id = str(input(f"Enter ScheduleID: "))
-
+            # Delete Pilot Schedule with the selected input
             self.cur.execute(f"DELETE FROM PilotSchedule WHERE PilotID = ? AND ScheduleID = ?", (pilot_id, schedule_id))
 
             if self.cur.rowcount != 0:
@@ -222,7 +223,7 @@ class DBOperations:
             print("")
             self.print_table(self.cur.execute(f"SELECT * FROM {table}"), table, None)
             delete_id = str(input(f"\nEnter {primary_key} Record to Delete: "))
-
+            # Delete entry from "table" with the select primary key
             self.cur.execute(f"DELETE FROM {table} WHERE {primary_key} = ?", (delete_id,))
 
             if self.cur.rowcount != 0:
@@ -254,7 +255,7 @@ class DBOperations:
 
     def search_data(self):
         """
-        Searches for a scheduled fligth ID and then prints its data
+        Searches for a scheduled flight ID and then prints its data
         """
         try:
             self.get_connection()
@@ -297,6 +298,7 @@ class DBOperations:
     def view_pilot_schedule(self):
         """
         Searches for pilots schedule from a list of pilots
+        Prints pilots table and waits for user to input ID, then prints schedule table
         """
         try:
             self.get_connection()
@@ -322,7 +324,7 @@ class DBOperations:
 
     def view_destination(self):
         """
-        Prints details of route destination from a Fligth Route ID
+        Prints details of route destination from a Flight Route ID
         """
         try:
             self.get_connection()
