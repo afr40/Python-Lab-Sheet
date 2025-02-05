@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 
-
+# *************************** Database Test Queries ***********************************
 # All SQL Queries will be collected here since DBOperations handles queries differently
 # NOTE: This queries are not commited to the database so any changes will not be reflected
 
