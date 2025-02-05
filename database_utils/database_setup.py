@@ -58,15 +58,15 @@ def create_tables(cursor):
         PilotID INTEGER PRIMARY KEY NOT NULL,
         Airport_base TEXT,
         Name TEXT NOT NULL,
-        Status TEXT CHECK (Status IN ('Available', 'On Duty', 'On Leave', 'Sick Leave', 'On Call', '')),
+        Status TEXT CHECK (Status IN ('Available', 'On Duty', 'On Leave', 'Sick Leave', 'On Call', 'Unavailable', '')),
         FOREIGN KEY (Airport_base) REFERENCES Airport(AirportID) ON DELETE CASCADE ON UPDATE CASCADE
     )'''
     cursor.execute(query)
 
     query = '''CREATE TABLE IF NOT EXISTS PilotSchedule (
         PilotID INTEGER NOT NULL,
-        ScheduleID INTEGER NOT NULL,
-        Role TEXT NOT NULL CHECK (Role IN ('Captain', 'Senior First Officer', 'First Officer', 'Second Officer')),
+        ScheduleID INTEGER,
+        Role TEXT CHECK (Role IN ('Captain', 'Senior First Officer', 'First Officer', 'Second Officer', '')),
         PRIMARY KEY(PilotID, ScheduleID),
         FOREIGN KEY (PilotID) REFERENCES Pilot(PilotID) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (ScheduleID) REFERENCES FlightSchedule(ScheduleID) ON DELETE CASCADE ON UPDATE CASCADE
@@ -135,18 +135,16 @@ def insert_sample_data(cursor):
     # Insert pilot schedule data
     cursor.execute("INSERT INTO PilotSchedule VALUES (1, 1, 'Captain')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (1, 4, 'Captain')")
-    cursor.execute("INSERT INTO PilotSchedule VALUES (4, 2, 'First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (4, Null, '')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (3, 2, 'Captain')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (5, 3, 'Captain')")
-    cursor.execute("INSERT INTO PilotSchedule VALUES (2, 1, 'First Officer')")
+    cursor.execute("INSERT INTO PilotSchedule VALUES (2, Null, '')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (2, 4, 'First Officer')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (3, 5, 'Captain')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (2, 7, 'First Officer')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (5, 6, 'Captain')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (4, 5, 'First Officer')")
     cursor.execute("INSERT INTO PilotSchedule VALUES (6, 3, 'First Officer')")
-    cursor.execute("INSERT INTO PilotSchedule VALUES (6, 6, 'First Officer')")
-    cursor.execute("INSERT INTO PilotSchedule VALUES (1, 7, 'Captain')")
 
     cursor.execute('''PRAGMA foreign_keys = ON''')
 

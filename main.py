@@ -4,6 +4,7 @@ from table_utils.airport import Airport
 from table_utils.flight_route import FlightRoute
 from table_utils.flight_schedule import FlightSchedule
 from table_utils.pilot import Pilot
+from table_utils.pilot_schedule import PilotSchedule
 
 """
 The Main Menu of the database:
@@ -62,7 +63,7 @@ while True:
         if __choose_menu == 1:
             db_ops.select_all(sql.select_all_pilots, sql.pilot_table)
         elif __choose_menu == 2:
-            db_ops.select_all(sql.select_all_pilot_schedules, None)
+            db_ops.select_all(sql.select_all_pilot_schedules, None, sql.select_all_pilot_schedules_columns)
         elif __choose_menu == 3:
             db_ops.select_all(sql.search_pilot_available, sql.pilot_table)
         elif __choose_menu == 4:
@@ -102,6 +103,7 @@ while True:
         print("1. Add Airport Record")
         print("2. Update Airport Record")
         print("3. Delete Airport Record")
+        print("4. <- GO BACK")
         __choose_menu = int(input("Enter your choice: "))
         if __choose_menu == 1:
             airport = Airport()
@@ -110,21 +112,41 @@ while True:
             db_ops.update_data(sql.airport_table, sql.airport_pk)
         elif __choose_menu == 3:
             db_ops.delete_data(sql.airport_table, sql.airport_pk)
+        elif __choose_menu == 4:
+            print("")
         else:
             print("Invalid Choice")
 
     elif __choose_menu == 6:
         print("1. Add Pilots Record")
-        print("2. Update Pilots Record")
-        print("3. Delete Pilots Record")
+        print("2. Add Pilots Schedule")
+        print("3. Update Pilots Record")
+        print("4. Update Pilots Schedule")
+        print("5. Delete Pilots Record")
+        print("6. Delete Pilots Schedule")
+        print("7. <- GO BACK")
         __choose_menu = int(input("Enter your choice: "))
         if __choose_menu == 1:
             pilot = Pilot()
             db_ops.insert_data(pilot, sql.pilot_table, sql.insert_pilot)
         elif __choose_menu == 2:
-            db_ops.update_data(sql.pilot_table, sql.pilot_pk)
+            pilot_schedule = PilotSchedule()
+            db_ops.select_all(sql.search_pilot_available, sql.pilot_table)
+            db_ops.select_all(sql.select_all_schedules, None, sql.select_all_pilot_schedules_columns)
+            db_ops.insert_pilot_schedule()
         elif __choose_menu == 3:
+            db_ops.update_data(sql.pilot_table, sql.pilot_pk)
+        elif __choose_menu == 4:
+            db_ops.select_all(sql.search_pilot_available, sql.pilot_table)
+            db_ops.select_all(sql.select_all_schedules, None, sql.select_all_pilot_schedules_columns)
+            db_ops.update_data(sql.pilot_schedule_table, sql.pilot_schedule_pk)
+        elif __choose_menu == 5:
             db_ops.delete_data(sql.pilot_table, sql.pilot_pk)
+        elif __choose_menu == 6:
+            db_ops.select_all(sql.select_all_pilot_schedules, None, sql.select_all_pilot_schedules_columns)
+            db_ops.delete_data(sql.pilot_schedule_table, sql.pilot_schedule_pk)
+        elif __choose_menu == 7:
+            print("")
         else:
             print("Invalid Choice")
 

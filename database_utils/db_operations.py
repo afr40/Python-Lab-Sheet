@@ -2,6 +2,7 @@ import sqlite3
 import pandas as pd
 from database_utils.database_setup import *
 from database_utils.sql_queries import SQLQueries
+from table_utils.pilot_schedule import PilotSchedule
 
 
 class DBOperations:
@@ -89,6 +90,33 @@ class DBOperations:
             self.conn.close()
 
 
+    def insert_pilot_schedule(self):
+        """
+        Inserts data into the pilot schedule table
+        """
+        try:
+            self.get_connection()
+            pilot_schedule = PilotSchedule()
+
+            pilot_schedule.set_pilot_id(int(input("Enter Pilot ID : ")))
+            print('')
+            self.print_table(self.cur.execute("SELECT * FROM FlightSchedule"), 'FlightSchedule')
+            print('')
+            pilot_schedule.set_schedule_id(str(input("Enter Schedule ID: ")))
+            pilot_schedule.set_role(str(input("Enter Pilot Role: ")))
+            print('')
+            sql = SQLQueries()
+
+            self.cur.execute(sql.insert_pilot_schedule, tuple(str(pilot_schedule).split("\n")))
+            self.cur.execute("UPDATE Pilot SET Status = 'Unavailable' WHERE PilotID = ?", (int(pilot_schedule.get_pilot_id()),))
+            self.conn.commit()
+            print("Inserted data successfully")
+        except Exception as e:
+            print(e)
+        finally:
+            self.conn.close()
+
+
     def update_data(self, table, primary_key):
         """
         Updates data into the table using generic queries, and printing the tables before updating
@@ -102,7 +130,7 @@ class DBOperations:
             table_id = input(f"Enter {table} ID: ")
             print("Choose Information to Update")
             print("---------------")
-            print("Flight ID: " + str(table_id))
+            # print(f"{primary_key} : " + str(table_id))
             for index, column in enumerate(columns, start=1):
                 print(f"{index}. Update {column}")
 
