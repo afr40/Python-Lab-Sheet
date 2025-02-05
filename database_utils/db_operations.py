@@ -152,6 +152,27 @@ class DBOperations:
             self.conn.close()
 
 
+    def delete_pilot_schedule(self):
+        try:
+            self.get_connection()
+            print("")
+            pilot_id = str(input(f"\nEnter PilotID Record: "))
+            schedule_id = str(input(f"Enter ScheduleID: "))
+
+            self.cur.execute(f"DELETE FROM PilotSchedule WHERE PilotID = ? AND ScheduleID = ?", (pilot_id, schedule_id))
+
+            if self.cur.rowcount != 0:
+                print(str(self.cur.rowcount) + " Row(s) affected.")
+                self.conn.commit()
+            else:
+                print("Cannot find this record in the database")
+
+        except Exception as e:
+            print(e)
+        finally:
+            self.conn.close()
+
+
     def delete_data(self, table, primary_key):
         """
         Deletes data from the table using generic queries.

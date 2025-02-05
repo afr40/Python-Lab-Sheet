@@ -144,7 +144,7 @@ while True:
             db_ops.delete_data(sql.pilot_table, sql.pilot_pk)
         elif __choose_menu == 6:
             db_ops.select_all(sql.select_all_pilot_schedules, None, sql.select_all_pilot_schedules_columns)
-            db_ops.delete_data(sql.pilot_schedule_table, sql.pilot_schedule_pk)
+            db_ops.delete_pilot_schedule()
         elif __choose_menu == 7:
             print("")
         else:
